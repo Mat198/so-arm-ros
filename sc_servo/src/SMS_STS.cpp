@@ -76,7 +76,7 @@ void SMS_STS::SyncWritePosEx(u8 ID[], u8 IDN, s16 Position[], u16 Speed[], u8 AC
         Host2SCS(bBuf+5, bBuf+6, V);
         memcpy(offbuf[i], bBuf, 7);
     }
-    snycWrite(ID, IDN, SMS_STS_ACC, (u8*)offbuf, 7);
+    syncWrite(ID, IDN, SMS_STS_ACC, (u8*)offbuf, 7);
 }
 
 int SMS_STS::WheelMode(u8 ID)
