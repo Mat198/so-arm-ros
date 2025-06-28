@@ -1,4 +1,4 @@
-﻿/*
+/*
  * SCSCL.cpp
  * SCSCL系列串行舵机应用层程序
  * 日期: 2020.6.17
@@ -234,4 +234,30 @@ int SCSCL::ReadCurrent(int ID)
 		Current = -(Current&~(1<<15));
 	}	
 	return Current;
+}
+
+int SCSCL::ReadMinAngleLimit(u8 ID) {
+	int minAngleLimit = -1; 
+	minAngleLimit = readWord(ID, SCSCL_MIN_ANGLE_LIMIT_L);
+	if(minAngleLimit==-1){
+		Err = 1;
+		return -1;
+	}
+	if(!Err && (minAngleLimit&(1<<15))){
+		minAngleLimit = -(minAngleLimit&~(1<<15));
+	}
+	return minAngleLimit;
+}
+
+int SCSCL::ReadMaxAngleLimit(u8 ID) {
+	int maxAngleLimit = -1; 
+	maxAngleLimit = readWord(ID, SCSCL_MAX_ANGLE_LIMIT_L);;
+	if(maxAngleLimit==-1){
+		Err = 1;
+		return -1;
+	}
+	if(!Err && (maxAngleLimit&(1<<15))){
+		maxAngleLimit = -(maxAngleLimit&~(1<<15));
+	}
+	return maxAngleLimit;
 }

@@ -80,6 +80,8 @@ public:
 	virtual int ReadTemper(int ID);//读温度
 	virtual int ReadMove(int ID);//读移动状态
 	virtual int ReadCurrent(int ID);//读电流
+	virtual int ReadMinAngleLimit(u8 ID);
+	virtual int ReadMaxAngleLimit(u8 ID);
 private:
 	u8 Mem[SCSCL_PRESENT_CURRENT_H-SCSCL_PRESENT_POSITION_L+1];
 };

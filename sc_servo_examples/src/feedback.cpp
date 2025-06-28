@@ -38,12 +38,6 @@ int main(int argc, char **argv)
 			std::cout<<"Temper = "<<Temper<<" ";
 			std::cout<<"Move = "<<Move<<" ";
 			std::cout<<"Current = "<<Current<<std::endl;
-			sc.ReadEprom(1);
-			sc.ReadEprom(2);
-			sc.ReadEprom(3);
-			sc.ReadEprom(4);
-			sc.ReadEprom(5);
-			sc.ReadEprom(6);
 			usleep(10*1000);
 			continue;
 		}else{
