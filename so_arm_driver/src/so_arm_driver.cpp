@@ -23,6 +23,23 @@ void SoArmDriver::updateState() {
         m_state.temperature[i] = m_servos.ReadTemper(-1);
     }
 }
+
+void SoArmDriver::setTarget(JointArray pos, JointArray vel) {
+    uint8_t ids[JOINT_NUMBER];
+    uint16_t encPos[JOINT_NUMBER];
+    uint16_t time[JOINT_NUMBER];
+    uint16_t encVel[JOINT_NUMBER];
+
+    for (size_t i = 0; i < JOINT_NUMBER; i++) {
+        ids[i] = m_servosIds[i];
+        encPos[i] = pos2Encoder(pos[i], i);
+        time[i] = 0;
+        encVel[i] = vel2steps(vel[i]);
+    }
+    
+    m_servos.SyncWritePos(ids, JOINT_NUMBER,encPos, time, encVel);
+}
+
 void SoArmDriver::setUpJointLimits() {
 
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
