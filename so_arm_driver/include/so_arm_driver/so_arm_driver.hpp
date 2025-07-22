@@ -29,20 +29,27 @@ private:
   void setJointPosition2EncoderConsts(int joint);
 
   // Convert encoder position to angle in radians
-  double encoder2Pos(const int encoderRead, int joint);
+  double encoder2Pos(const int encoder, const int joint);
 
   // Convert angle in radians to encoder position 
-  int pos2Encoder(double pos);
+  uint16_t pos2Encoder(const double pos, const int joint);
 
-  JointArray vel2Encoder(JointArray vel);
+  // Convert velocity from steps/s to rad/s
+  double steps2Vel(const int steps);
+
+  // Convert velocity from rad/s to steps/s
+  uint16_t vel2steps(const double vel);
 
   SCSCL m_servos;
   State m_state;
   Target m_target;
   JointIntArray m_servosIds;
   JointLimits m_limits;
+
+  // Stores the conversion constants from encoder steps to position in degrees. 
   JointConsts m_consts;
 
+  const rclcpp::Logger m_logger = rclcpp::get_logger("so_arm_driver");
 };
 
 }  // namespace SOArm

@@ -84,6 +84,22 @@ void SoArmDriver::setJointPosition2EncoderConsts(const int joint) {
     m_consts[joint].intercept = (encMax * angleMin - encMax * angleMax) / (encMax - encMin);
 }
 
+double SoArmDriver::encoder2Pos(const int encoder, const int joint) {
+    return m_consts[joint].slope * encoder + m_consts[joint].intercept;
+}
+
+uint16_t SoArmDriver::pos2Encoder(const double pos, const int joint) {
+    return static_cast<uint16_t>((pos - m_consts[joint].intercept) / m_consts[joint].slope);
+}
+
+uint16_t SoArmDriver::vel2steps(const double vel) {
+    // Converting rad/s to steps/s
+    return static_cast<uint16_t>(abs(vel * STEPS_PER_REVOLUTION / (2 * M_PI))); 
+}
+
+double SoArmDriver::steps2Vel(const int steps) {
+    return (2 * M_PI * static_cast<double>(steps)) / static_cast<double>(STEPS_PER_REVOLUTION);
+}
 
 
 }  // namespace so_arm_driver
