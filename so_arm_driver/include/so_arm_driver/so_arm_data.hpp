@@ -6,6 +6,7 @@
 namespace SOArm {
 
 static constexpr size_t JOINT_NUMBER = 6;
+static const size_t STEPS_PER_REVOLUTION = 4096;
 using JointArray = std::array<double, JOINT_NUMBER>;
 using JointIntArray = std::array<double, JOINT_NUMBER>;
 

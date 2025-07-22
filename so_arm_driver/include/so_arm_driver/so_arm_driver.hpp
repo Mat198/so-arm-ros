@@ -22,9 +22,11 @@ public:
   
 private:
 
-  void readJointLimits();
+  void setUpJointLimits();
 
-  // std::pair<double,double> getJointAngleLimit(int joint);
+  std::pair<double,double> getJointAngleLimit(int joint);
+
+  void setJointPosition2EncoderConsts(int joint);
 
   // Convert encoder position to angle in radians
   double encoder2Pos(const int encoderRead, int joint);
