@@ -5,6 +5,7 @@
   <material name="3d_printed">
     <color rgba="0.8 0.8 0.8 1.0"/>
   </material>
+  <!-- TODO: Uncomment the material tags when multiple visual materials are working on RVIZ -->
   <material name="sts3215">
     <color rgba="0.1 0.1 0.1 1.0"/>
   </material>
@@ -53,7 +54,7 @@
       <geometry>
         <mesh filename="package://so_arm_description/meshes/sts3215_03a_v1.stl"/>
       </geometry>
-      <material name="sts3215"/>
+      <!-- <material name="sts3215"/> -->
     </visual>
     <collision>
       <origin xyz="0.0263353 0 0.0437" rpy="0 0 0"/>
@@ -93,7 +94,8 @@
       <geometry>
         <mesh filename="package://so_arm_description/meshes/sts3215_03a_v1.stl"/>
       </geometry>
-      <material name="sts3215"/>
+      <!-- <material name="sts3215"/> -->
+      <material name="3d_printed"/>
     </visual>
     <collision>
       <origin xyz="-0.0303992 0.000422241 -0.0417" rpy="${pi/2} ${pi/2} 0"/>
@@ -147,7 +149,8 @@
       <geometry>
         <mesh filename="package://so_arm_description/meshes/sts3215_03a_v1.stl"/>
       </geometry>
-      <material name="sts3215"/>
+      <material name="3d_printed"/>
+      <!-- <material name="sts3215"/> -->
     </visual>
     <collision>
       <origin xyz="-0.11257 -0.0155 0.0187" rpy="${-pi} 0 ${-pi/2}"/>
@@ -215,7 +218,7 @@
       <geometry>
         <mesh filename="package://so_arm_description/meshes/sts3215_03a_v1.stl"/>
       </geometry>
-      <material name="sts3215"/>
+      <!-- <material name="sts3215"/> -->
     </visual>
     <collision>
       <origin xyz="-0.1224 0.0052 0.0187" rpy="${-pi} 0 ${-pi}"/>
@@ -241,7 +244,8 @@
       <geometry>
         <mesh filename="package://so_arm_description/meshes/sts3215_03a_no_horn_v1.stl"/>
       </geometry>
-      <material name="sts3215"/>
+      <material name="3d_printed"/>
+      <!-- <material name="sts3215"/> -->
     </visual>
     <collision>
       <origin xyz="0 -0.0424 0.0306" rpy="${pi/2} ${pi/2} 0"/>
@@ -281,7 +285,8 @@
       <geometry>
         <mesh filename="package://so_arm_description/meshes/sts3215_03a_v1.stl"/>
       </geometry>
-      <material name="sts3215"/>
+      <material name="3d_printed"/>
+      <!-- <material name="sts3215"/> -->
     </visual>
     <collision>
       <origin xyz="0.0077 0.0001 -0.0234" rpy="${-pi/2} 0 0"/>
