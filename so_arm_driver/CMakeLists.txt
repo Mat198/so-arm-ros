@@ -10,6 +10,8 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sc_servo REQUIRED)
+find_package(trajectory_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 add_library(so_arm_driver src/so_arm_driver.cpp)
 target_compile_features(so_arm_driver PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
@@ -24,6 +26,10 @@ ament_target_dependencies(
     sc_servo
 )
 
+add_executable(so_arm_demo test/so_arm_driver_test_node.cpp src/so_arm_driver.cpp)
+target_include_directories(so_arm_demo PRIVATE include)
+ament_target_dependencies(so_arm_demo rclcpp sc_servo trajectory_msgs sensor_msgs)
+
 install(
   DIRECTORY include/
   DESTINATION include
@@ -34,6 +40,9 @@ install(
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+install(TARGETS so_arm_demo
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

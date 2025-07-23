@@ -18,6 +18,9 @@ public:
 
   void setTarget(JointArray pos, JointArray vel);
 
+  // TODO: Function to check if target is inside limits
+
+  // TODO: Implement
   void calibrate();
   
 private:
