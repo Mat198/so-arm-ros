@@ -3,9 +3,24 @@
 namespace SOArm {
 
 SoArmDriver::SoArmDriver() {
+    RCLCPP_INFO_STREAM(m_logger, "Starting SO-ARM Driver...");
     // Consider servos from 1 to 6 to be the standard
     std::iota(m_servosIds.begin(), m_servosIds.end(), 1);
+    RCLCPP_INFO_STREAM(m_logger, "Ids set!");
+
+    m_servos = SCSCL(0);
+    std::string port = "/dev/ttyACM0";
+    uint rate = 1000000;
+    while(!m_servos.begin(rate, port.c_str()) && rclcpp::ok()) {
+        RCLCPP_INFO_STREAM(
+            m_logger, "Failed to connect to arm on port " << port << ". Retrying..."
+        );
+        rclcpp::sleep_for(std::chrono::seconds(1));
+    }
+    RCLCPP_INFO_STREAM(m_logger, "Connected with SO-ARM on port " << port << "at " << rate << "!");
+
     setUpJointLimits();
+    RCLCPP_INFO_STREAM(m_logger, "SO-ARM Driver started!");
 }
 
 SoArmDriver::~SoArmDriver()
