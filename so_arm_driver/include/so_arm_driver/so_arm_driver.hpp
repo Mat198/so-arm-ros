@@ -14,7 +14,7 @@ public:
 
   ~SoArmDriver();
 
-  void updateState();
+  State updateState();
 
   void setTarget(JointArray pos, JointArray vel);
 

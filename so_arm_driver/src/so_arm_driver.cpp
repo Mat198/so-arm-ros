@@ -12,16 +12,19 @@ SoArmDriver::~SoArmDriver()
 {
 }
 
-void SoArmDriver::updateState() {
+State SoArmDriver::updateState() {
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
+        const auto id = m_servosIds[i];
         m_servos.FeedBack(m_servosIds[i]);
-        m_state.encoder[i] = m_servos.ReadPos(-1);
-        m_state.pos[i] = encoder2Pos(m_state.encoder[i], i);
-        m_state.vel[i] = m_servos.ReadSpeed(-1);
-        m_state.load[i] = m_servos.ReadLoad(-1);
-        m_state.voltage[i] = m_servos.ReadVoltage(-1);
-        m_state.temperature[i] = m_servos.ReadTemper(-1);
+        m_state.steps[i] = m_servos.ReadPos(id);
+        m_state.pos[i] = encoder2Pos(m_state.steps[i], i);
+        m_state.stepsVel[i] = m_servos.ReadSpeed(id);
+        m_state.vel[i] = steps2Vel(m_state.stepsVel[i]);
+        m_state.load[i] = m_servos.ReadLoad(id);
+        m_state.voltage[i] = m_servos.ReadVoltage(id);
+        m_state.temperature[i] = m_servos.ReadTemper(id);
     }
+    return m_state;
 }
 
 void SoArmDriver::setTarget(JointArray pos, JointArray vel) {
