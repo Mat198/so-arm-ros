@@ -116,7 +116,7 @@ void SoArmDriver::setJointPosition2EncoderConsts(const int joint) {
     const double angleMax = m_limits.angle[joint].max;
     const double angleMin = m_limits.angle[joint].min;
     m_consts[joint].slope = (angleMax - angleMin) / (encMax - encMin);
-    m_consts[joint].intercept = (encMax * angleMin - encMax * angleMax) / (encMax - encMin);
+    m_consts[joint].intercept = (encMax * angleMin - encMin * angleMax) / (encMax - encMin);
 }
 
 double SoArmDriver::encoder2Pos(const int encoder, const int joint) {
