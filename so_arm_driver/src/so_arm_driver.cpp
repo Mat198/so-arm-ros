@@ -73,6 +73,7 @@ void SoArmDriver::setUpJointLimits() {
         // Set up the joint calibration considering a linear relation between angle and encoder
         // 12 bits = 4095 = 360° = 2 pi
         setJointPosition2EncoderConsts(i);
+        RCLCPP_INFO_STREAM(m_logger, "Joint " << i << " with ID " << m_servosIds[i] << " set!");
     }
 }
 

@@ -7,8 +7,11 @@ namespace SOArm {
 
 static constexpr size_t JOINT_NUMBER = 6;
 static const size_t STEPS_PER_REVOLUTION = 4096;
+static const std::vector<std::string> JOINT_NAMES = {
+    "gripper", "wrist_roll", "wrist_flex", "elbow_flex", "shoulder_lift", "shoulder_pan"  
+};
 using JointArray = std::array<double, JOINT_NUMBER>;
-using JointIntArray = std::array<double, JOINT_NUMBER>;
+using JointIntArray = std::array<int, JOINT_NUMBER>;
 
 struct Target {
     JointArray pos;
@@ -20,7 +23,8 @@ struct State {
     JointArray pos;
     JointArray vel;
     JointArray acc;
-    JointIntArray encoder;
+    JointIntArray steps;
+    JointIntArray stepsVel;
     JointIntArray load;
     JointIntArray voltage;
     JointIntArray temperature;
