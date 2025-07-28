@@ -8,7 +8,7 @@ namespace SOArm {
 static constexpr size_t JOINT_NUMBER = 6;
 static const size_t STEPS_PER_REVOLUTION = 4096;
 static const std::vector<std::string> JOINT_NAMES = {
-    "gripper", "wrist_roll", "wrist_flex", "elbow_flex", "shoulder_lift", "shoulder_pan"  
+    "shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"      
 };
 using JointArray = std::array<double, JOINT_NUMBER>;
 using JointIntArray = std::array<int, JOINT_NUMBER>;

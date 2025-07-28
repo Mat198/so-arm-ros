@@ -36,14 +36,9 @@ public:
         jointStateMsg.name = JOINT_NAMES;
         jointStateMsg.header.frame_id = "so_arm";
         jointStateMsg.header.stamp = get_clock()->now();
-        jointStateMsg.position.reserve(JOINT_NUMBER);
-        jointStateMsg.velocity.reserve(JOINT_NUMBER);
-        jointStateMsg.effort.reserve(JOINT_NUMBER);
-        for (size_t i = 1; i <= JOINT_NUMBER; i++) {
-            jointStateMsg.position.push_back(state.pos[JOINT_NUMBER - i]);
-            jointStateMsg.velocity.push_back(state.vel[JOINT_NUMBER - i]);
-            jointStateMsg.effort.push_back(state.load[JOINT_NUMBER - i]);
-        }
+        jointStateMsg.position = std::vector<double>(state.pos.begin(), state.pos.end());
+        jointStateMsg.velocity = std::vector<double>(state.vel.begin(), state.vel.end());
+        jointStateMsg.effort = std::vector<double>(state.load.begin(), state.load.end());
         m_jointStatesPub->publish(jointStateMsg);
     }
 
