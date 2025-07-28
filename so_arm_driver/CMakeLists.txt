@@ -30,10 +30,15 @@ add_executable(so_arm_demo test/so_arm_driver_test_node.cpp src/so_arm_driver.cp
 target_include_directories(so_arm_demo PRIVATE include)
 ament_target_dependencies(so_arm_demo rclcpp sc_servo trajectory_msgs sensor_msgs)
 
+add_executable(so_arm_keyboard_controller test/keyboard_controller.cpp)
+target_include_directories(so_arm_keyboard_controller PRIVATE include)
+ament_target_dependencies(so_arm_keyboard_controller rclcpp trajectory_msgs sensor_msgs)
+
 install(
   DIRECTORY include/
   DESTINATION include
 )
+
 install(
   TARGETS so_arm_driver
   EXPORT export_${PROJECT_NAME}
@@ -41,7 +46,8 @@ install(
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
-install(TARGETS so_arm_demo
+
+install(TARGETS so_arm_demo so_arm_keyboard_controller
   DESTINATION lib/${PROJECT_NAME}
 )
 
