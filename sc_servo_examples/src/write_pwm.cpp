@@ -10,10 +10,12 @@ int main(int argc, char **argv)
         return 0;
 	}
 	std::cout<<"serial:"<<argv[1]<<std::endl;
-    if(!sc.begin(115200, argv[1])){
+    if(!sc.begin(1000000, argv[1])){
         std::cout<<"Failed to init scscl motor!"<<std::endl;
         return 0;
     }
+	// TODO: Change work mode when setting PWM mode
+	// Warning: Take care of eeprom limits
 	sc.PWMMode(1);
 	std::cout<<"mode = "<<1<<std::endl;
 	while(1){

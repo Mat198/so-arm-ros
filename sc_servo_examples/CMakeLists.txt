@@ -14,9 +14,13 @@ ament_target_dependencies(ping sc_servo)
 add_executable(feedback src/feedback.cpp)
 ament_target_dependencies(feedback sc_servo)
 
+add_executable(write_pwm src/write_pwm.cpp)
+ament_target_dependencies(write_pwm sc_servo)
+
 install(TARGETS
   feedback
   ping
+  write_pwm
   DESTINATION lib/${PROJECT_NAME}  
 )
 
