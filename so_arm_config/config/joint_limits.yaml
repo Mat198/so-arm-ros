@@ -1,7 +1,8 @@
 # joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
 
 # For beginners, we downscale velocity and acceleration limits.
-# You can always specify higher scaling factors (<= 1.0) in your motion requests.  # Increase the values below to 1.0 to always move at maximum speed.
+# You can always specify higher scaling factors (<= 1.0) in your motion requests. 
+ # Increase the values below to 1.0 to always move at maximum speed.
 default_velocity_scaling_factor: 0.1
 default_acceleration_scaling_factor: 0.1
 
@@ -10,31 +11,31 @@ default_acceleration_scaling_factor: 0.1
 joint_limits:
   elbow_flex:
     has_velocity_limits: true
-    max_velocity: 10
+    max_velocity: 0.73
     has_acceleration_limits: false
     max_acceleration: 0
   gripper:
     has_velocity_limits: true
-    max_velocity: 10
+    max_velocity: 0.73
     has_acceleration_limits: false
     max_acceleration: 0
   shoulder_lift:
     has_velocity_limits: true
-    max_velocity: 10
+    max_velocity: 0.73
     has_acceleration_limits: false
     max_acceleration: 0
   shoulder_pan:
     has_velocity_limits: true
-    max_velocity: 10
+    max_velocity: 0.73
     has_acceleration_limits: false
     max_acceleration: 0
   wrist_flex:
     has_velocity_limits: true
-    max_velocity: 10
+    max_velocity: 0.73
     has_acceleration_limits: false
     max_acceleration: 0
   wrist_roll:
     has_velocity_limits: true
-    max_velocity: 10
+    max_velocity: 0.73
     has_acceleration_limits: false
     max_acceleration: 0
