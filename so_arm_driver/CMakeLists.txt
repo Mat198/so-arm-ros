@@ -69,6 +69,7 @@ ament_export_include_directories(
 ament_export_libraries(
   so_arm_driver
 )
+ament_export_dependencies(rclcpp sc_servo)
 ament_export_targets(
   export_${PROJECT_NAME}
 )
