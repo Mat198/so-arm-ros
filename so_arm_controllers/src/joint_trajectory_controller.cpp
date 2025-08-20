@@ -58,20 +58,8 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_init(
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        // Checa pela interface de aceleração das juntas
-        // if (joint.command_interfaces[2].name != hardware_interface::HW_IF_ACCELERATION) {
-        //     RCLCPP_FATAL(
-        //         m_logger,
-        //         "Joint '%s' have %s command interfaces found. '%s' expected.",
-        //         joint.name.c_str(),
-        //         joint.command_interfaces[1].name.c_str(),
-        //         hardware_interface::HW_IF_VELOCITY
-        //     );
-        //     return hardware_interface::CallbackReturn::ERROR;
-        // }
-
         // Checa pelo número de interfaces de sensores de velocidade e posição das juntas
-        if (joint.state_interfaces.size() != 3) {
+        if (joint.state_interfaces.size() != 2) {
             RCLCPP_FATAL(
                 m_logger,
                 "Joint '%s' has %zu state interface."
@@ -100,14 +88,6 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_init(
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        if (joint.state_interfaces[2].name != hardware_interface::HW_IF_EFFORT) {
-            RCLCPP_FATAL(
-                m_logger,
-                "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
-                joint.state_interfaces[2].name.c_str(), hardware_interface::HW_IF_EFFORT
-            );
-            return hardware_interface::CallbackReturn::ERROR;
-        }
     }
 
     RCLCPP_INFO_STREAM(m_logger, "Successfully started!");
@@ -144,14 +124,6 @@ SOArmHardwareInterface::export_state_interfaces() {
                 &m_state.velocities[i]
             )
         );
-
-        state_interfaces.emplace_back(
-            hardware_interface::StateInterface(
-                info_.joints[i].name,
-                hardware_interface::HW_IF_ACCELERATION,
-                &m_state.accelerations[i]
-            )
-        );
     }
 
     return state_interfaces;
@@ -185,16 +157,6 @@ SOArmHardwareInterface::export_command_interfaces()
             m_logger, "Velocity command interface configured for joint " << i << "!"
         );
 
-        command_interfaces.emplace_back(
-            hardware_interface::CommandInterface(
-                info_.joints[i].name,
-                hardware_interface::HW_IF_ACCELERATION,
-                &m_target.accelerations[i]
-            )
-        );
-        RCLCPP_INFO_STREAM(
-            m_logger, "Acceleration command interface configured for joint " << i << "!"
-        );
     }
 
     return command_interfaces;
@@ -215,7 +177,7 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_deactivate(
 ) {
     RCLCPP_INFO(m_logger, "Deactivating... please wait...");
     // Call destructor direct to ensure the comunication is closed
-    m_driver.~SoArmDriver();
+    // m_driver.~SoArmDriver();
     RCLCPP_INFO(m_logger, "Successfully deactivated!");
 
     return hardware_interface::CallbackReturn::SUCCESS;
