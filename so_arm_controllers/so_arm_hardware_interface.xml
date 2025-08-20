@@ -1,6 +1,6 @@
 <library path="so_arm_hardware_interface">
-  <class name="so_arm_controller/SOArmHardwareInterface"
-         type="so_arm_controller::SOArmHardwareInterface"
+  <class name="so_arm_controllers/SOArmHardwareInterface"
+         type="SOArm::SOArmHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>
 		ROS2 Control System Driver for the SO-Arm101.
