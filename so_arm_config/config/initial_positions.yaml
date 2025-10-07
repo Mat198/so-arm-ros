@@ -1,5 +1,5 @@
 # Default initial positions for so_arm_101's ros2_control fake system
-
+# Not load as ROS parameters. Load directly on the ros2_control urdf
 initial_positions:
   elbow_flex: 0
   gripper: 0

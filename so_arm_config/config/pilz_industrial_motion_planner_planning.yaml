@@ -1,0 +1,23 @@
+/**:
+  ros__parameters:
+    pilz_industrial_motion_planner:
+      planning_plugin: pilz_industrial_motion_planner/CommandPlanner
+      planner_id: PTP
+
+      request_adapters: >-
+        default_planner_request_adapters/FixWorkspaceBounds
+        default_planner_request_adapters/FixStartStateBounds
+        default_planner_request_adapters/FixStartStateCollision
+        default_planner_request_adapters/FixStartStatePathConstraints
+
+      default_planner_config: PTP
+
+      capabilities: >-
+          pilz_industrial_motion_planner/MoveGroupSequenceAction
+          pilz_industrial_motion_planner/MoveGroupSequenceService
+
+      default_workspace_bounds: 10.0
+      start_state_max_bounds_error: 0.05
+      start_state_max_dt: 0.5
+      jiggle_fraction: 0.02
+      max_sampling_attempts: 100
