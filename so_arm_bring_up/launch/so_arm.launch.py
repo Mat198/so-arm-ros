@@ -150,8 +150,8 @@ def generate_launch_description():
 
     # TODO: Add parameter to disable RVIZ
 
-    bring_up_pkg_path = FindPackageShare("so_arm_bring_up")
-    rviz_config_file = PathJoinSubstitution([bring_up_pkg_path, "rviz", "so_arm_moveit.rviz"])
+    bring_up_pkg_path = FindPackageShare("so_arm_config")
+    rviz_config_file = PathJoinSubstitution([bring_up_pkg_path, "rviz", "moveit.rviz"])
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
