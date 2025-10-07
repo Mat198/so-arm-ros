@@ -1,17 +1,23 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="so_arm_101_ros2_control" params="name initial_positions_file mock:=true">
-        <xacro:property name="initial_positions" value="${load_yaml(initial_positions_file)['initial_positions']}"/>
+    <xacro:macro name="so_arm_101_ros2_control" 
+      params="name initial_positions_file mock_controller:=true">
+        
+        <xacro:property 
+          name="initial_positions" 
+          value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"
+        />
+        
         <ros2_control name="${name}" type="system">
             <hardware>
-                <!-- Set up controllers for simulation. This won't work on real hardware -->
-                <xacro:if value="${mock}">
+                <!-- Set up controllers for mock_controller. This won't work on real hardware -->
+                <xacro:if value="${mock_controller}">
                   <plugin>mock_components/GenericSystem</plugin>
                 </xacro:if>
-                <xacro:unless value="${mock}">
+                <!-- Set up controllers for real info send. Can work with real robot or virtual controller. -->
+                <xacro:unless value="${mock_controller}">
                   <plugin>so_arm_controllers/SOArmHardwareInterface</plugin>
                 </xacro:unless>
-                <!-- Set up controllers for real info send. Can work with real robot or virtual controller. -->
             </hardware>
             <joint name="shoulder_pan">
                 <command_interface name="position"/>
