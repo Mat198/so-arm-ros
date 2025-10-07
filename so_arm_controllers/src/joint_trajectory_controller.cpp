@@ -206,9 +206,13 @@ hardware_interface::return_type SOArmHardwareInterface::read(
     const rclcpp::Duration & /*period*/
 ) {
     const auto state = m_driver.updateState();
-    m_state.positions = std::vector<double>(state.pos.begin(), state.pos.end());
-    m_state.velocities = std::vector<double>(state.vel.begin(), state.vel.end());
-    m_state.effort = std::vector<double>(state.load.begin(), state.load.end());
+    // TODO: Split gripper from the main robot arm
+    for (uint i = 0; i < info_.joints.size(); ++i) {
+        m_state.positions[i] = state.pos[i];
+        m_state.velocities[i] = state.vel[i];
+        m_state.effort[i] = state.load[i];
+    }
+   
     return hardware_interface::return_type::OK;
 }
 
