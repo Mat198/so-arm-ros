@@ -67,6 +67,8 @@ private:
     JointData m_state;
     JointData m_target;
 
+    bool m_targetInitialized = false;
+
     const rclcpp::Logger m_logger = rclcpp::get_logger("so_arm_hardware_interface");
 };
 

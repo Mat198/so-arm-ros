@@ -213,6 +213,19 @@ hardware_interface::return_type SOArmHardwareInterface::read(
         m_state.effort[i] = state.load[i];
     }
    
+    if (!m_targetInitialized) {
+        for (uint i = 0; i < info_.joints.size(); ++i) {
+            m_target.positions[i] = m_state.positions[i];
+            m_target.velocities[i] = m_state.velocities[i];
+            m_target.effort[i] = m_state.effort[i];
+        }
+        RCLCPP_WARN_STREAM(m_logger, std::setprecision(3) << std::fixed  
+            << "Initial state is {" << m_state.positions[0] << ", " << m_state.positions[1] << ", "
+            << m_state.positions[2] << ", " << m_state.positions[3] << ", " 
+            << m_state.positions[4] << "}"
+        );
+        m_targetInitialized = true;
+    }
     return hardware_interface::return_type::OK;
 }
 
@@ -221,6 +234,12 @@ hardware_interface::return_type SOArmHardwareInterface::write(
     const rclcpp::Duration & /*period*/
 ) {
     // TODO: Split gripper from main robot arm
+    if (!m_targetInitialized) {
+        // We don't send any command until the target is actually started.
+        // Prevent the robot moving to zero when it's started
+        return hardware_interface::return_type::OK;
+    }
+    
     std::array<double, JOINT_NUMBER> pos; 
     std::copy_n(m_target.positions.begin(), 5, pos.begin());
     std::array<double, JOINT_NUMBER> vel; 
