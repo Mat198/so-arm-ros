@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>so_arm_controllers</name>
+  <name>so_arm_hardware_interface</name>
   <version>0.1.0</version>
   <description>ROS 2 controllers for the SO-ARM101</description>
   <maintainer email="matheussousasf@gmail.com">Matheus Sousa Soares</maintainer>

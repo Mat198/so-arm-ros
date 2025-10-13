@@ -16,7 +16,7 @@
                 </xacro:if>
                 <!-- Set up controllers for real info send. Can work with real robot or virtual controller. -->
                 <xacro:unless value="${mock_controller}">
-                  <plugin>so_arm_controllers/SOArmHardwareInterface</plugin>
+                  <plugin>so_arm_hardware_interface/SOArmHardwareInterface</plugin>
                 </xacro:unless>
             </hardware>
             <joint name="shoulder_pan">

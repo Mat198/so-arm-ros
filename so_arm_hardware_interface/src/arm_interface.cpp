@@ -1,4 +1,4 @@
-#include "so_arm_controllers/joint_trajectory_controller.hpp"
+#include "so_arm_hardware_interface/arm_interface.hpp"
 
 namespace SOArm {
 

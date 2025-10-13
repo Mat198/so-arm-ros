@@ -11,7 +11,7 @@
 
   <depend>so_arm_driver</depend>
   <depend>so_arm_config</depend>
-  <depend>so_arm_controllers</depend>
+  <depend>so_arm_hardware_interface</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

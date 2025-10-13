@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(so_arm_driver REQUIRED)
 find_package(so_arm_config REQUIRED)
-find_package(so_arm_controllers REQUIRED)
+find_package(so_arm_hardware_interface REQUIRED)
 find_package(so_arm_description REQUIRED)
 
 install(DIRECTORY launch rviz

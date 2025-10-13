@@ -1,5 +1,5 @@
 <library path="so_arm_hardware_interface">
-  <class name="so_arm_controllers/SOArmHardwareInterface"
+  <class name="so_arm_hardware_interface/SOArmHardwareInterface"
          type="SOArm::SOArmHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>

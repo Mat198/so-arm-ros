@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(so_arm_controllers)
+project(so_arm_hardware_interface)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -34,7 +34,7 @@ set(HARDWARE_INTERFACE_INCLUDES
 
 add_library(so_arm_hardware_interface
   SHARED
-  src/joint_trajectory_controller.cpp
+  src/arm_interface.cpp
 )
 
 target_include_directories(
