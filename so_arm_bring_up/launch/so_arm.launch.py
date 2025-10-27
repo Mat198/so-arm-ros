@@ -126,6 +126,13 @@ def generate_launch_description():
         name="so_arm_controller_spawner",
         arguments=["so_arm_controller"],
     )
+
+    gripper_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="gripper_controller_spawner",
+        arguments=["gripper_controller"],
+    )
     
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
@@ -174,5 +181,6 @@ def generate_launch_description():
         rviz_node,
         controller_manager,
         so_arm_controller_spawner,
+        gripper_controller_spawner,
         joint_state_broadcaster_spawner
     ])
