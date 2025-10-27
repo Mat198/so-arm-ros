@@ -42,6 +42,30 @@ State SoArmDriver::updateState() {
     return m_state;
 }
 
+void SoArmDriver::setTarget(JointVector pos, JointVector vel) {
+    uint8_t ids[JOINT_NUMBER];
+    uint16_t encPos[JOINT_NUMBER];
+    uint16_t time[JOINT_NUMBER];
+    uint16_t encVel[JOINT_NUMBER];
+
+    if (pos.size() != JOINT_NUMBER || vel.size() != JOINT_NUMBER) {
+        RCLCPP_ERROR_STREAM_THROTTLE(m_logger, m_sysClock, ERROR_INTERVAL_MS,
+            "Received wrong number of joints in target! Received " << pos.size() 
+            << " positions  and " << vel.size() << " expecting " << JOINT_NUMBER 
+        );
+        return;
+    }
+
+    for (size_t i = 0; i < JOINT_NUMBER; i++) {
+        ids[i] = m_servosIds[i];
+        encPos[i] = pos2Encoder(pos[i], i);
+        time[i] = 0;
+        encVel[i] = vel2steps(vel[i]);
+    }
+    
+    m_servos.SyncWritePos(ids, JOINT_NUMBER,encPos, time, encVel);
+}
+
 void SoArmDriver::setTarget(JointArray pos, JointArray vel) {
     uint8_t ids[JOINT_NUMBER];
     uint16_t encPos[JOINT_NUMBER];

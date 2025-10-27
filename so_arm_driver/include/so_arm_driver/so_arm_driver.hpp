@@ -18,6 +18,8 @@ public:
 
   void setTarget(JointArray pos, JointArray vel);
 
+  void setTarget(JointVector pos, JointVector vel); 
+
   // TODO: Function to check if target is inside limits
 
   // TODO: Implement
@@ -53,6 +55,9 @@ private:
   JointConsts m_consts;
 
   const rclcpp::Logger m_logger = rclcpp::get_logger("so_arm_driver");
+  rclcpp::Clock m_sysClock = rclcpp::Clock(RCL_SYSTEM_TIME);
+
+  const int ERROR_INTERVAL_MS = 5000;
 };
 
 }  // namespace SOArm

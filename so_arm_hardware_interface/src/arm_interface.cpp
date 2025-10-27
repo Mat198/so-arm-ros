@@ -240,10 +240,8 @@ hardware_interface::return_type SOArmHardwareInterface::write(
         return hardware_interface::return_type::OK;
     }
     
-    std::array<double, JOINT_NUMBER> pos; 
-    std::copy_n(m_target.positions.begin(), 5, pos.begin());
-    std::array<double, JOINT_NUMBER> vel; 
-    std::copy_n(m_target.velocities.begin(), 5, vel.begin());
+    const std::vector<double> pos = m_target.positions; 
+    const std::vector<double> vel = m_target.velocities; 
     m_driver.setTarget(pos, vel);
     return hardware_interface::return_type::OK;
 }

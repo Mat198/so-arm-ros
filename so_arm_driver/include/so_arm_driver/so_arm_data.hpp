@@ -10,6 +10,8 @@ static const size_t STEPS_PER_REVOLUTION = 4096;
 static const std::vector<std::string> JOINT_NAMES = {
     "shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"      
 };
+
+using JointVector = std::vector<double>;
 using JointArray = std::array<double, JOINT_NUMBER>;
 using JointIntArray = std::array<int, JOINT_NUMBER>;
 
