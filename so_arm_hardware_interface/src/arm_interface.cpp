@@ -205,13 +205,19 @@ hardware_interface::return_type SOArmHardwareInterface::read(
     const rclcpp::Time & /*time*/,
     const rclcpp::Duration & /*period*/
 ) {
+
+    // Here we can't just do m_state.position = state.pos (Weird values appear!)
+    // because we need to keep the same memory adress asigned before to the state interface
+    // We need to update each value individually
     const auto state = m_driver.updateState();
     for (uint i = 0; i < info_.joints.size(); ++i) {
         m_state.positions[i] = state.pos[i];
         m_state.velocities[i] = state.vel[i];
         m_state.effort[i] = state.load[i];
     }
-   
+    
+    // Set the first target to the current position and not to zero. 
+    // Prevents the robot to move unexpectly.
     if (!m_targetInitialized) {
         for (uint i = 0; i < info_.joints.size(); ++i) {
             m_target.positions[i] = m_state.positions[i];
@@ -232,10 +238,9 @@ hardware_interface::return_type SOArmHardwareInterface::write(
     const rclcpp::Time & /*time*/,
     const rclcpp::Duration & /*period*/
 ) {
-    // TODO: Split gripper from main robot arm
     if (!m_targetInitialized) {
         // We don't send any command until the target is actually started.
-        // Prevent the robot moving to zero when it's started
+        // Prevent the robot moving immediately to zero when it's started
         return hardware_interface::return_type::OK;
     }
     
