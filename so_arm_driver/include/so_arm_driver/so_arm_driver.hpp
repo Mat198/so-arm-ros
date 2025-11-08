@@ -16,9 +16,9 @@ public:
 
   State updateState();
 
-  void setTarget(JointArray pos, JointArray vel);
+  void setTarget(const JointArray &pos, const JointArray &vel);
 
-  void setTarget(JointVector pos, JointVector vel); 
+  void enableMotorTorque(const JointArray &enable);
 
   // TODO: Function to check if target is inside limits
 
@@ -47,7 +47,6 @@ private:
 
   SCSCL m_servos;
   State m_state;
-  Target m_target;
   JointIntArray m_servosIds;
   JointLimits m_limits;
 

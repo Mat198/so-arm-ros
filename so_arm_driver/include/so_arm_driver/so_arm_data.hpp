@@ -14,14 +14,17 @@ static const std::vector<std::string> JOINT_NAMES = {
 using JointVector = std::vector<double>;
 using JointArray = std::array<double, JOINT_NUMBER>;
 using JointIntArray = std::array<int, JOINT_NUMBER>;
+using JointBoolArray = std::array<bool, JOINT_NUMBER>;
 
-struct Target {
+struct Command {
     JointArray pos;
     JointArray vel;
     JointArray acc;
+    JointArray enable;
 };
 
 struct State {
+    JointBoolArray enabled;
     JointArray pos;
     JointArray vel;
     JointArray acc;

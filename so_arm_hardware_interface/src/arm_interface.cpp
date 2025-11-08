@@ -7,15 +7,9 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_init(
 ) {
     RCLCPP_INFO(m_logger, "Starting SO-ARM hardware interface...");
 
-    // Setting vectors to Joint size
-    m_state.positions = std::vector<double>(JOINT_NUMBER, 0.0);
-    m_state.velocities = m_state.effort = m_state.positions;
-    m_target = m_state;
+    namespace hi = hardware_interface; // Syntatic sugar
 
-    if (
-        hardware_interface::SystemInterface::on_init(info) !=
-        hardware_interface::CallbackReturn::SUCCESS
-    ) {
+    if (hi::SystemInterface::on_init(info) != hi::CallbackReturn::SUCCESS) {
         RCLCPP_FATAL(m_logger, "Failed to init hardware interface.");
         return hardware_interface::CallbackReturn::ERROR;
     }
@@ -138,33 +132,23 @@ SOArmHardwareInterface::export_state_interfaces() {
 }
 
 std::vector<hardware_interface::CommandInterface>
-SOArmHardwareInterface::export_command_interfaces()
-{
+SOArmHardwareInterface::export_command_interfaces() {
+
+    namespace hi = hardware_interface; // Syntatic sugar
     std::vector<hardware_interface::CommandInterface> command_interfaces;
     for (uint i = 0; i < info_.joints.size(); ++i) {
-
         command_interfaces.emplace_back(
-            hardware_interface::CommandInterface(
-                info_.joints[i].name,
-                hardware_interface::HW_IF_POSITION,
-                &m_target.positions[i]
-            )
+            hi::CommandInterface(info_.joints[i].name, hi::HW_IF_POSITION, &m_command.pos[i])
         );
-        RCLCPP_INFO_STREAM(
-            m_logger, "Position command interface configured for joint " << i << "!"
-        );
-
         command_interfaces.emplace_back(
-            hardware_interface::CommandInterface(
-                info_.joints[i].name,
-                hardware_interface::HW_IF_VELOCITY,
-                &m_target.velocities[i]
-            )
+            hi::CommandInterface(info_.joints[i].name,hi::HW_IF_VELOCITY, &m_command.vel[i])
         );
-        RCLCPP_INFO_STREAM(
-            m_logger, "Velocity command interface configured for joint " << i << "!"
-        );
+    }
 
+    for (uint i = 0; i < info_.gpios.size(); ++i) {
+        command_interfaces.emplace_back(
+            hi::CommandInterface(info_.gpios[i].name, "enable", &m_command.enable[i])
+        );
     }
 
     return command_interfaces;
@@ -231,18 +215,12 @@ hardware_interface::return_type SOArmHardwareInterface::read(
     
     // Set the first target to the current position and not to zero. 
     // Prevents the robot to move unexpectly.
-    if (!m_targetInitialized) {
-        for (uint i = 0; i < info_.joints.size(); ++i) {
-            m_target.positions[i] = m_state.positions[i];
-            m_target.velocities[i] = m_state.velocities[i];
-            m_target.effort[i] = m_state.effort[i];
+    for (uint i = 0; i < JOINT_NUMBER; ++i) {
+        if (!m_state.enabled[i]) {
+            m_command.pos[i] = m_state.pos[i];
+            m_command.vel[i] = m_state.vel[i];
+            m_command.acc[i] = m_state.acc[i];
         }
-        RCLCPP_WARN_STREAM(m_logger, std::setprecision(3) << std::fixed  
-            << "Initial state is {" << m_state.positions[0] << ", " << m_state.positions[1] << ", "
-            << m_state.positions[2] << ", " << m_state.positions[3] << ", " 
-            << m_state.positions[4] << "}"
-        );
-        m_targetInitialized = true;
     }
     return hardware_interface::return_type::OK;
 }
@@ -251,15 +229,9 @@ hardware_interface::return_type SOArmHardwareInterface::write(
     const rclcpp::Time & /*time*/,
     const rclcpp::Duration & /*period*/
 ) {
-    if (!m_targetInitialized) {
-        // We don't send any command until the target is actually started.
-        // Prevent the robot moving immediately to zero when it's started
-        return hardware_interface::return_type::OK;
-    }
-    
-    const std::vector<double> pos = m_target.positions; 
-    const std::vector<double> vel = m_target.velocities; 
-    m_driver.setTarget(pos, vel);
+
+    m_driver.enableMotorTorque(m_command.enable);
+    m_driver.setTarget(m_command.pos, m_command.vel);
     return hardware_interface::return_type::OK;
 }
 

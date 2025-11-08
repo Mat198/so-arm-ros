@@ -28,6 +28,7 @@ SoArmDriver::~SoArmDriver()
 }
 
 State SoArmDriver::updateState() {
+    // TODO: Check performance of multiple readings. Maybe it's lowering the bandwith?
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
         const auto id = m_servosIds[i];
         m_servos.FeedBack(m_servosIds[i]);
@@ -43,45 +44,39 @@ State SoArmDriver::updateState() {
     return m_state;
 }
 
-void SoArmDriver::setTarget(JointVector pos, JointVector vel) {
-    uint8_t ids[JOINT_NUMBER];
-    uint16_t encPos[JOINT_NUMBER];
-    uint16_t time[JOINT_NUMBER];
-    uint16_t encVel[JOINT_NUMBER];
-
-    if (pos.size() != JOINT_NUMBER || vel.size() != JOINT_NUMBER) {
-        RCLCPP_ERROR_STREAM_THROTTLE(m_logger, m_sysClock, ERROR_INTERVAL_MS,
-            "Received wrong number of joints in target! Received " << pos.size() 
-            << " positions  and " << vel.size() << " expecting " << JOINT_NUMBER 
-        );
-        return;
-    }
+void SoArmDriver::setTarget(const JointArray &pos, const JointArray &vel) {
+    std::vector<uint8_t> idsVector;
+    std::vector<uint16_t> encPosVector;
+    std::vector<uint16_t> timeVector;
+    std::vector<uint16_t> encVelVector;
 
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
-        ids[i] = m_servosIds[i];
-        encPos[i] = pos2Encoder(pos[i], i);
-        time[i] = 0;
-        encVel[i] = vel2steps(vel[i]);
+        if (!m_state.enabled[i]) {continue;}
+        
+        idsVector.push_back(m_servosIds[i]);
+        encPosVector.push_back(pos2Encoder(pos[i], i));
+        timeVector.push_back(0);
+        encVelVector.push_back(vel2steps(vel[i]));
     }
-    
-    m_servos.SyncWritePos(ids, JOINT_NUMBER,encPos, time, encVel);
+
+    if (idsVector.empty()) {return;}
+
+    uint8_t *ids = &idsVector[0];
+    uint16_t *encPos = &encPosVector[0];
+    uint16_t *time = &timeVector[0];
+    uint16_t * encVel = &encVelVector[0];
+
+    m_servos.SyncWritePos(ids, JOINT_NUMBER, encPos, time, encVel);
 }
 
-void SoArmDriver::setTarget(JointArray pos, JointArray vel) {
-    uint8_t ids[JOINT_NUMBER];
-    uint16_t encPos[JOINT_NUMBER];
-    uint16_t time[JOINT_NUMBER];
-    uint16_t encVel[JOINT_NUMBER];
+ void SoArmDriver::enableMotorTorque(const JointArray &enable) {
 
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
-        ids[i] = m_servosIds[i];
-        encPos[i] = pos2Encoder(pos[i], i);
-        time[i] = 0;
-        encVel[i] = vel2steps(vel[i]);
+        const u8 torqueEnabled = static_cast<u8>(enable[i]);
+        m_servos.EnableTorque(m_servosIds[i], torqueEnabled);
+        m_state.enabled[i] = torqueEnabled;
     }
-    
-    m_servos.SyncWritePos(ids, JOINT_NUMBER,encPos, time, encVel);
-}
+ }
 
 void SoArmDriver::setUpJointLimits() {
 

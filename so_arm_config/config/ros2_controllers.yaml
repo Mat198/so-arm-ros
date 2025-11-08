@@ -14,6 +14,10 @@ controller_manager:
     
     joint_sensor_broadcaster:
       type: gpio_controllers/GpioCommandController
+    
+    motor_torque_enable_controller:
+      type: gpio_controllers/GpioCommandController
+
 so_arm_controller:
   ros__parameters:
     joints:
@@ -81,3 +85,33 @@ joint_sensor_broadcaster:
           - load
           - temperature
           - move
+
+motor_torque_enable_controller:
+  ros__parameters:
+    # We gonna use this to set motors state
+    gpios:
+      - shoulder_pan
+      - shoulder_lift
+      - elbow_flex
+      - wrist_flex
+      - wrist_roll
+      - gripper
+    command_interfaces:
+      shoulder_pan:
+        - interfaces:
+          - enable
+      shoulder_lift:
+        - interfaces:
+          - enable
+      elbow_flex:
+        - interfaces:
+          - enable
+      wrist_flex:
+        - interfaces:
+          - enable
+      wrist_roll:
+        - interfaces:
+          - enable
+      gripper:
+        - interfaces:
+          - enable

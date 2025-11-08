@@ -3,8 +3,6 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "trajectory_msgs/msg/joint_trajectory_point.hpp"
-
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
@@ -15,8 +13,6 @@
 #include "so_arm_driver/so_arm_driver.hpp"
 
 namespace SOArm {
-
-using JointData = trajectory_msgs::msg::JointTrajectoryPoint;
 
 class SOArmHardwareInterface : public hardware_interface::SystemInterface {
 public:
@@ -65,9 +61,7 @@ private:
     SoArmDriver m_driver;
 
     State m_state;
-    JointData m_target;
-
-    bool m_targetInitialized = false;
+    Command m_command;
 
     const rclcpp::Logger m_logger = rclcpp::get_logger("so_arm_hardware_interface");
 };

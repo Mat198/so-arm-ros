@@ -68,36 +68,42 @@
                 <state_interface name="velocity"/>
             </joint>
             <gpio name="shoulder_pan">
+                <command_interface name="enable"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
                 <state_interface name="move"/>
             </gpio>
             <gpio name="shoulder_lift">
+                <command_interface name="enable"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
                 <state_interface name="move"/>
             </gpio>
             <gpio name="elbow_flex">
+                <command_interface name="enable"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
                 <state_interface name="move"/>
             </gpio>
             <gpio name="wrist_flex">
+                <command_interface name="enable"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
                 <state_interface name="move"/>
             </gpio>
             <gpio name="wrist_roll">
+                <command_interface name="enable"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
                 <state_interface name="move"/>
             </gpio>
             <gpio name="gripper">
+                <command_interface name="enable"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
