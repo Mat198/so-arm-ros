@@ -108,21 +108,29 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_configure(
 std::vector<hardware_interface::StateInterface>
 SOArmHardwareInterface::export_state_interfaces() {
     std::vector<hardware_interface::StateInterface> state_interfaces;
+
+    namespace hi = hardware_interface; // Syntatic sugar
     for (uint i = 0; i < info_.joints.size(); ++i) {
         state_interfaces.emplace_back(
-            hardware_interface::StateInterface(
-                info_.joints[i].name,
-                hardware_interface::HW_IF_POSITION,
-                &m_state.positions[i]
-            )
+            hi::StateInterface(info_.joints[i].name, hi::HW_IF_POSITION, &m_state.pos[i])
         );
-
         state_interfaces.emplace_back(
-            hardware_interface::StateInterface(
-                info_.joints[i].name,
-                hardware_interface::HW_IF_VELOCITY,
-                &m_state.velocities[i]
-            )
+            hi::StateInterface(info_.joints[i].name, hi::HW_IF_VELOCITY, &m_state.vel[i])
+        );
+    }
+
+    for (uint i = 0; i < info_.gpios.size(); ++i) {
+        state_interfaces.emplace_back(
+            hi::StateInterface(info_.gpios[i].name, "voltage", &m_state.voltage[i])
+        );
+        state_interfaces.emplace_back(
+            hi::StateInterface(info_.gpios[i].name, "temperature", &m_state.temperature[i])
+        );
+        state_interfaces.emplace_back(
+            hi::StateInterface(info_.gpios[i].name, "load", &m_state.load[i])
+        );
+        state_interfaces.emplace_back(
+            hi::StateInterface(info_.gpios[i].name, "move", &m_state.move[i])
         );
     }
 
@@ -211,9 +219,14 @@ hardware_interface::return_type SOArmHardwareInterface::read(
     // We need to update each value individually
     const auto state = m_driver.updateState();
     for (uint i = 0; i < info_.joints.size(); ++i) {
-        m_state.positions[i] = state.pos[i];
-        m_state.velocities[i] = state.vel[i];
-        m_state.effort[i] = state.load[i];
+        m_state.pos[i] = state.pos[i];
+        m_state.vel[i] = state.vel[i];
+        m_state.acc[i] = state.acc[i];
+        m_state.load[i] = state.load[i];
+        m_state.temperature[i] = state.temperature[i];
+        m_state.voltage[i] = state.voltage[i];
+        m_state.move[i] = state.move[i];
+        m_state.enabled = state.enabled;
     }
     
     // Set the first target to the current position and not to zero. 

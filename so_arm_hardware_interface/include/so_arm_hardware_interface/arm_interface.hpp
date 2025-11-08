@@ -64,7 +64,7 @@ private:
 
     SoArmDriver m_driver;
 
-    JointData m_state;
+    State m_state;
     JointData m_target;
 
     bool m_targetInitialized = false;

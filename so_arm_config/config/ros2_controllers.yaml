@@ -11,7 +11,9 @@ controller_manager:
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-
+    
+    joint_sensor_broadcaster:
+      type: gpio_controllers/GpioCommandController
 so_arm_controller:
   ros__parameters:
     joints:
@@ -31,3 +33,51 @@ so_arm_controller:
 gripper_controller:
   ros__parameters:
     joint: gripper
+
+joint_sensor_broadcaster:
+  ros__parameters:
+    # We gonna abstract the joint sensors as gpios to read voltage, load and temperature.
+    gpios:
+      - shoulder_pan
+      - shoulder_lift
+      - elbow_flex
+      - wrist_flex
+      - wrist_roll
+      - gripper
+    state_interfaces:
+      shoulder_pan:
+        - interfaces:
+          - voltage
+          - load
+          - temperature
+          - move
+      shoulder_lift:
+        - interfaces:
+          - voltage
+          - load
+          - temperature
+          - move
+      elbow_flex:
+        - interfaces:
+          - voltage
+          - load
+          - temperature
+          - move
+      wrist_flex:
+        - interfaces:
+          - voltage
+          - load
+          - temperature
+          - move
+      wrist_roll:
+        - interfaces:
+          - voltage
+          - load
+          - temperature
+          - move
+      gripper:
+        - interfaces:
+          - voltage
+          - load
+          - temperature
+          - move

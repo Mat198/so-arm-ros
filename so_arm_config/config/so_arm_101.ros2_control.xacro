@@ -4,19 +4,19 @@
       params="name initial_positions_file mock_controller:=true">
         
         <xacro:property 
-          name="initial_positions" 
-          value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"
+            name="initial_positions" 
+            value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"
         />
         
         <ros2_control name="${name}" type="system">
             <hardware>
                 <!-- Set up controllers for mock_controller. This won't work on real hardware -->
                 <xacro:if value="${mock_controller}">
-                  <plugin>mock_components/GenericSystem</plugin>
+                    <plugin>mock_components/GenericSystem</plugin>
                 </xacro:if>
                 <!-- Set up controllers for real info send. Can work with real robot or virtual controller. -->
                 <xacro:unless value="${mock_controller}">
-                  <plugin>so_arm_hardware_interface/SOArmHardwareInterface</plugin>
+                    <plugin>so_arm_hardware_interface/SOArmHardwareInterface</plugin>
                 </xacro:unless>
             </hardware>
             <joint name="shoulder_pan">
@@ -67,7 +67,42 @@
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>
-
+            <gpio name="shoulder_pan">
+                <state_interface name="voltage"/>
+                <state_interface name="load"/>
+                <state_interface name="temperature"/>
+                <state_interface name="move"/>
+            </gpio>
+            <gpio name="shoulder_lift">
+                <state_interface name="voltage"/>
+                <state_interface name="load"/>
+                <state_interface name="temperature"/>
+                <state_interface name="move"/>
+            </gpio>
+            <gpio name="elbow_flex">
+                <state_interface name="voltage"/>
+                <state_interface name="load"/>
+                <state_interface name="temperature"/>
+                <state_interface name="move"/>
+            </gpio>
+            <gpio name="wrist_flex">
+                <state_interface name="voltage"/>
+                <state_interface name="load"/>
+                <state_interface name="temperature"/>
+                <state_interface name="move"/>
+            </gpio>
+            <gpio name="wrist_roll">
+                <state_interface name="voltage"/>
+                <state_interface name="load"/>
+                <state_interface name="temperature"/>
+                <state_interface name="move"/>
+            </gpio>
+            <gpio name="gripper">
+                <state_interface name="voltage"/>
+                <state_interface name="load"/>
+                <state_interface name="temperature"/>
+                <state_interface name="move"/>
+            </gpio>
         </ros2_control>
     </xacro:macro>
 </robot>

@@ -27,9 +27,10 @@ struct State {
     JointArray acc;
     JointIntArray steps;
     JointIntArray stepsVel;
-    JointIntArray load;
-    JointIntArray voltage;
-    JointIntArray temperature;
+    JointArray load;
+    JointArray voltage;
+    JointArray temperature;
+    JointArray move;
 };
 
 template<typename T>

@@ -141,6 +141,13 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster"],
     )
 
+    joint_sensor_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="joint_sensor_broadcaster_spawner",
+        arguments=["joint_sensor_broadcaster"],
+    )
+
     ############################ Robot State Publisher #############################
 
     robot_state_publisher_node = Node(
@@ -182,5 +189,6 @@ def generate_launch_description():
         controller_manager,
         so_arm_controller_spawner,
         gripper_controller_spawner,
-        joint_state_broadcaster_spawner
+        joint_state_broadcaster_spawner,
+        joint_sensor_broadcaster_spawner,
     ])

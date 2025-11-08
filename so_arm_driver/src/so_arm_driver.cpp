@@ -36,8 +36,9 @@ State SoArmDriver::updateState() {
         m_state.stepsVel[i] = m_servos.ReadSpeed(id);
         m_state.vel[i] = steps2Vel(m_state.stepsVel[i]);
         m_state.load[i] = m_servos.ReadLoad(id);
-        m_state.voltage[i] = m_servos.ReadVoltage(id);
+        m_state.voltage[i] = m_servos.ReadVoltage(id) / 10.0;
         m_state.temperature[i] = m_servos.ReadTemper(id);
+        m_state.move[i] = m_servos.ReadMove(id);
     }
     return m_state;
 }
