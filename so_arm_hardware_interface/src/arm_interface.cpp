@@ -219,11 +219,14 @@ hardware_interface::return_type SOArmHardwareInterface::read(
     // Set the first target to the current position and not to zero. 
     // Prevents the robot to move unexpectly.
     for (uint i = 0; i < JOINT_NUMBER; ++i) {
-        if (!m_state.enabled[i]) {
+        if (!m_state.enabled[i] || !m_initialized) {
             m_command.pos[i] = m_state.pos[i];
             m_command.vel[i] = m_state.vel[i];
             m_command.acc[i] = m_state.acc[i];
         }
+    }
+    if (!m_initialized) {
+        m_initialized = true;
     }
     return hardware_interface::return_type::OK;
 }
@@ -234,6 +237,13 @@ hardware_interface::return_type SOArmHardwareInterface::write(
 ) {
 
     m_driver.enableMotorTorque(m_command.enable);
+
+    if (!m_initialized) {
+        // We don't send any command until the target is actually started.
+        // Prevent the robot moving immediately to zero when it's started
+       return hardware_interface::return_type::OK; 
+    }
+
     m_driver.setTarget(m_command.pos, m_command.vel);
     return hardware_interface::return_type::OK;
 }

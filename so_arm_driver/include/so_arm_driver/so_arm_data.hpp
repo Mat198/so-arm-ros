@@ -20,7 +20,7 @@ struct Command {
     JointArray pos;
     JointArray vel;
     JointArray acc;
-    JointArray enable;
+    JointArray enable = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 };
 
 struct State {

@@ -63,6 +63,8 @@ private:
     State m_state;
     Command m_command;
 
+    bool m_initialized = false;
+
     const rclcpp::Logger m_logger = rclcpp::get_logger("so_arm_hardware_interface");
 };
 
