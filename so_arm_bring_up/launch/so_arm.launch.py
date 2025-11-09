@@ -51,8 +51,6 @@ def generate_launch_description():
     robot_description_kinematics = PathJoinSubstitution(
         [config_pkg_path, "config", "kinematics.yaml"])
     
-
-
     ######################## Loads the robot configuration #########################
 
     ompl_planning= PathJoinSubstitution([config_pkg_path, "config", "ompl_planning.yaml"])
@@ -102,6 +100,16 @@ def generate_launch_description():
             moveit_sensors,
             planning_scene_monitor,
         ],
+    )
+
+    ############################### SO-ARM Manager ################################
+
+    # Enables motors and check for unsafe conditions (high voltage, high temperature, ...)
+
+    so_arm_manager_node = Node(
+        package='so_arm_manager',
+        executable='so_arm_manager',
+        output='screen'
     )
 
     ############################## ROS 2 Controllers ###############################
@@ -191,6 +199,7 @@ def generate_launch_description():
 
         # Adds nodes to launch:
         move_group_node,
+        so_arm_manager_node,
         robot_state_publisher_node,
         rviz_node,
         controller_manager,
