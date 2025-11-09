@@ -115,6 +115,9 @@ SOArmHardwareInterface::export_state_interfaces() {
 
     for (uint i = 0; i < info_.gpios.size(); ++i) {
         state_interfaces.emplace_back(
+            hi::StateInterface(info_.gpios[i].name, "torque_enabled", &m_state.enabled[i])
+        );
+        state_interfaces.emplace_back(
             hi::StateInterface(info_.gpios[i].name, "voltage", &m_state.voltage[i])
         );
         state_interfaces.emplace_back(

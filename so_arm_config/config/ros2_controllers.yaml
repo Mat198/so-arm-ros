@@ -51,36 +51,42 @@ joint_sensor_broadcaster:
     state_interfaces:
       shoulder_pan:
         - interfaces:
+          - torque_enabled
           - voltage
           - load
           - temperature
           - move
       shoulder_lift:
         - interfaces:
+          - torque_enabled
           - voltage
           - load
           - temperature
           - move
       elbow_flex:
         - interfaces:
+          - torque_enabled
           - voltage
           - load
           - temperature
           - move
       wrist_flex:
         - interfaces:
+          - torque_enabled
           - voltage
           - load
           - temperature
           - move
       wrist_roll:
         - interfaces:
+          - torque_enabled
           - voltage
           - load
           - temperature
           - move
       gripper:
         - interfaces:
+          - torque_enabled
           - voltage
           - load
           - temperature

@@ -69,6 +69,7 @@
             </joint>
             <gpio name="shoulder_pan">
                 <command_interface name="enable"/>
+                <state_interface name="torque_enabled"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
@@ -76,6 +77,7 @@
             </gpio>
             <gpio name="shoulder_lift">
                 <command_interface name="enable"/>
+                <state_interface name="torque_enabled"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
@@ -83,6 +85,7 @@
             </gpio>
             <gpio name="elbow_flex">
                 <command_interface name="enable"/>
+                <state_interface name="torque_enabled"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
@@ -90,6 +93,7 @@
             </gpio>
             <gpio name="wrist_flex">
                 <command_interface name="enable"/>
+                <state_interface name="torque_enabled"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
@@ -97,6 +101,7 @@
             </gpio>
             <gpio name="wrist_roll">
                 <command_interface name="enable"/>
+                <state_interface name="torque_enabled"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
@@ -104,6 +109,7 @@
             </gpio>
             <gpio name="gripper">
                 <command_interface name="enable"/>
+                <state_interface name="torque_enabled"/>
                 <state_interface name="voltage"/>
                 <state_interface name="load"/>
                 <state_interface name="temperature"/>
