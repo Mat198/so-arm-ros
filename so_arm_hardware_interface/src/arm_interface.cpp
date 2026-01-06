@@ -236,7 +236,7 @@ hardware_interface::return_type SOArmHardwareInterface::write(
     const rclcpp::Duration & /*period*/
 ) {
 
-    m_driver.enableMotorTorque(m_command.enable);
+    m_driver.setMotorTorque(m_command.enable);
 
     if (!m_initialized) {
         // We don't send any command until the target is actually started.

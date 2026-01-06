@@ -18,12 +18,15 @@ public:
 
   void setTarget(const JointArray &pos, const JointArray &vel);
 
-  void enableMotorTorque(const JointArray &enable);
+  void setMotorTorque(const JointArray &state);
 
   // TODO: Function to check if target is inside limits
 
-  // TODO: Implement
-  void calibrate();
+  void setCalibrationMode(const JointArray &state);
+
+  bool setJointMin(const int joint);
+
+  bool setJointMax(const int joint);
   
 private:
 

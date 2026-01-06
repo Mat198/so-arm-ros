@@ -251,7 +251,7 @@ int SCSCL::ReadMinAngleLimit(u8 ID) {
 
 int SCSCL::ReadMaxAngleLimit(u8 ID) {
 	int maxAngleLimit = -1; 
-	maxAngleLimit = readWord(ID, SCSCL_MAX_ANGLE_LIMIT_L);;
+	maxAngleLimit = readWord(ID, SCSCL_MAX_ANGLE_LIMIT_L);
 	if(maxAngleLimit==-1){
 		Err = 1;
 		return -1;
@@ -261,3 +261,27 @@ int SCSCL::ReadMaxAngleLimit(u8 ID) {
 	}
 	return maxAngleLimit;
 }
+
+ int SCSCL::WriteMinAngleLimit(u8 ID, u16 Angle) {
+	const int locked = readByte(ID, SCSCL_LOCK); 
+	if(locked==-1){
+		Err = 1;
+		return -2;
+	}
+	if (!locked) {
+		return -1;
+	}
+	return writeWord(ID, SCSCL_MIN_ANGLE_LIMIT_L, Angle);
+ }
+	
+ int SCSCL::WriteMaxAngleLimit(u8 ID, u16 Angle) {
+	const bool locked = readByte(ID, SCSCL_LOCK); 
+	if(locked==-1){
+		Err = 1;
+		return -2;
+	}
+	if (!locked) {
+		return -1;
+	}
+	return writeWord(ID, SCSCL_MAX_ANGLE_LIMIT_L, Angle);
+ }

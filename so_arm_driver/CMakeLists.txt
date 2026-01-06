@@ -12,6 +12,8 @@ find_package(rclcpp REQUIRED)
 find_package(sc_servo REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(example_interfaces REQUIRED)
 
 add_library(so_arm_driver src/so_arm_driver.cpp)
 target_compile_features(so_arm_driver PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
@@ -28,7 +30,7 @@ ament_target_dependencies(
 
 add_executable(so_arm_demo test/so_arm_driver_test_node.cpp src/so_arm_driver.cpp)
 target_include_directories(so_arm_demo PRIVATE include)
-ament_target_dependencies(so_arm_demo rclcpp sc_servo trajectory_msgs sensor_msgs)
+ament_target_dependencies(so_arm_demo rclcpp sc_servo trajectory_msgs sensor_msgs std_srvs example_interfaces)
 
 add_executable(so_arm_keyboard_controller test/keyboard_controller.cpp)
 target_include_directories(so_arm_keyboard_controller PRIVATE include)

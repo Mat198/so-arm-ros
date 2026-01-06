@@ -25,6 +25,7 @@ struct Command {
 
 struct State {
     JointArray enabled;
+    JointArray calibration;
     JointArray pos;
     JointArray vel;
     JointArray acc;

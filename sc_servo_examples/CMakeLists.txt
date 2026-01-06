@@ -17,10 +17,14 @@ ament_target_dependencies(feedback sc_servo)
 add_executable(write_pwm src/write_pwm.cpp)
 ament_target_dependencies(write_pwm sc_servo)
 
+add_executable(program_eprom src/program_eprom.cpp)
+ament_target_dependencies(program_eprom sc_servo)
+
 install(TARGETS
   feedback
   ping
   write_pwm
+  program_eprom
   DESTINATION lib/${PROJECT_NAME}  
 )
 

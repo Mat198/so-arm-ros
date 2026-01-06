@@ -17,7 +17,9 @@ SoArmDriver::SoArmDriver() {
         );
         rclcpp::sleep_for(std::chrono::seconds(1));
     }
-    RCLCPP_INFO_STREAM(m_logger, "Connected with SO-ARM on port " << port << "at " << rate << "!");
+    RCLCPP_INFO_STREAM(
+        m_logger, "Connected with SO-ARM on port " << port << " at " << rate << " b/s!"
+    );
 
     setUpJointLimits();
     RCLCPP_INFO_STREAM(m_logger, "SO-ARM Driver started!");
@@ -37,7 +39,7 @@ State SoArmDriver::updateState() {
         m_state.stepsVel[i] = m_servos.ReadSpeed(id);
         m_state.vel[i] = steps2Vel(m_state.stepsVel[i]);
         m_state.load[i] = m_servos.ReadLoad(id);
-        m_state.voltage[i] = m_servos.ReadVoltage(id) / 10.0;
+        m_state.voltage[i] = m_servos.ReadVoltage(id) / 10.0; // Converting to Volts
         m_state.temperature[i] = m_servos.ReadTemper(id);
         m_state.move[i] = m_servos.ReadMove(id);
     }
@@ -69,26 +71,94 @@ void SoArmDriver::setTarget(const JointArray &pos, const JointArray &vel) {
     m_servos.SyncWritePos(ids, JOINT_NUMBER, encPos, time, encVel);
 }
 
- void SoArmDriver::enableMotorTorque(const JointArray &enable) {
+ void SoArmDriver::setMotorTorque(const JointArray &state) {
 
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
-        const u8 torqueEnabled = static_cast<u8>(enable[i]);
+        const u8 torqueEnabled = static_cast<u8>(state[i]);
         m_servos.EnableTorque(m_servosIds[i], torqueEnabled);
         m_state.enabled[i] = torqueEnabled;
     }
  }
+
+void SoArmDriver::setCalibrationMode(const JointArray &state) {
+
+    for (size_t i = 0; i < JOINT_NUMBER; i++) {
+        if (state[i]) {
+            m_servos.unLockEprom(m_servosIds[i]);
+        } else {
+            m_servos.LockEprom(m_servosIds[i]);
+        }
+        m_state.calibration[i] = state[i];
+    }
+}
+
+bool SoArmDriver::setJointMin(const int joint) {
+    if (!m_state.calibration[joint]) {
+        RCLCPP_ERROR_STREAM(m_logger, 
+            "Failed to set MIN joint angle for joint " << joint 
+            << ". Calibration mode is not enabled!"
+        );
+        return false;
+    }
+    const int angle = m_servos.ReadPos(m_servosIds[joint]);
+    RCLCPP_INFO_STREAM(m_logger, "Min Calib -> Current encoder pos is " << angle);
+    const int result = m_servos.WriteMinAngleLimit(joint, angle);
+    if (result <= 0) {
+        RCLCPP_ERROR_STREAM(m_logger, 
+            "Failed to set MIN joint angle for joint " << joint 
+            << ". Couldn't communicate with servo! Erro " << result << ";"
+        );
+        return false;
+    }
+    m_limits.encoder[joint].min = m_servos.ReadMinAngleLimit(m_servosIds[joint]);
+    setJointPosition2EncoderConsts(joint);
+    RCLCPP_INFO_STREAM(
+        m_logger, "Joint " << joint << " MIN angle updated to " << m_limits.encoder[joint].min
+    );
+    return true;
+}
+
+bool SoArmDriver::setJointMax(const int joint) {
+    if (!m_state.calibration[joint]) {
+        RCLCPP_ERROR_STREAM(m_logger, 
+            "Failed to set MAX joint angle for joint " << joint 
+            << ". Calibration mode is not enabled!"
+        );
+        return false;
+    }
+    const int angle = m_servos.ReadPos(m_servosIds[joint]);
+    RCLCPP_INFO_STREAM(m_logger, "Max Calib -> Current encoder pos is " << angle);
+    const int result = m_servos.WriteMaxAngleLimit(joint, angle);
+    if (result < 0) {
+        RCLCPP_ERROR_STREAM(m_logger, 
+            "Failed to set MAX joint angle for joint " << joint 
+            << ". Couldn't communicate with servo! Erro " << result << ";"
+        );
+        return false;
+    }
+    m_limits.encoder[joint].max = m_servos.ReadMaxAngleLimit(m_servosIds[joint]);
+    setJointPosition2EncoderConsts(joint);
+    RCLCPP_INFO_STREAM(
+        m_logger, "Joint " << joint << " MAX angle updated to " << m_limits.encoder[joint].max
+    );
+    return true;
+}
 
 void SoArmDriver::setUpJointLimits() {
 
     for (size_t i = 0; i < JOINT_NUMBER; i++) {
         // Read encoder's limit positions from EEPROM
         m_limits.encoder[i].min = m_servos.ReadMinAngleLimit(m_servosIds[i]);
+        RCLCPP_INFO_STREAM(m_logger, "J" << i << " -> Enc limit min = " << m_limits.encoder[i].min);
         m_limits.encoder[i].max = m_servos.ReadMaxAngleLimit(m_servosIds[i]);
+        RCLCPP_INFO_STREAM(m_logger, "J" << i << " -> Enc limit max = " << m_limits.encoder[i].max);
 
         // Get joint angle limits
         std::pair<double, double> angleLimits = getJointAngleLimit(i);
         m_limits.angle[i].min = angleLimits.first;
+        RCLCPP_INFO_STREAM(m_logger, "J" << i << " -> Angle min = " << m_limits.angle[i].min);
         m_limits.angle[i].max = angleLimits.second;
+        RCLCPP_INFO_STREAM(m_logger, "J" << i << " -> Angle max = " << m_limits.angle[i].max);
 
         // Set up the joint calibration considering a linear relation between angle and encoder
         // 12 bits = 4095 = 360° = 2 pi

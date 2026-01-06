@@ -82,6 +82,8 @@ public:
 	virtual int ReadCurrent(int ID);//读电流
 	virtual int ReadMinAngleLimit(u8 ID);
 	virtual int ReadMaxAngleLimit(u8 ID);
+	virtual int WriteMinAngleLimit(u8 ID, u16 Angle);
+	virtual int WriteMaxAngleLimit(u8 ID, u16 Angle);
 private:
 	u8 Mem[SCSCL_PRESENT_CURRENT_H-SCSCL_PRESENT_POSITION_L+1];
 };
