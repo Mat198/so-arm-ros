@@ -1,0 +1,9 @@
+<library path="so_arm_tcp_panel">
+  <class name="SO-ARM Teach Pendent"
+         type="SOArm::RobotTcp"
+         base_class_type="rviz_common::Panel">
+    <description>
+      A Teach Pendent panel for the SO-ARM on RVIZ
+    </description>
+  </class>
+</library>
