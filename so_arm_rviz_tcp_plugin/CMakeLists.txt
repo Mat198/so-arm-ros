@@ -25,7 +25,6 @@ set(PKG_INCLUDES
 set(CMAKE_AUTOMOC ON)
 qt5_wrap_cpp(MOC_FILES
   include/${PROJECT_NAME}/tcp_plugin.hpp
-  include/${PROJECT_NAME}/plan_pose.hpp
 )
 
 add_library(so_arm_tcp_panel src/tcp_plugin.cpp ${MOC_FILES})

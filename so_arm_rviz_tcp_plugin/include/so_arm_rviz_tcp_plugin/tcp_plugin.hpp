@@ -25,7 +25,6 @@
 #include <QTreeWidget>
 
 // Package includes
-#include "so_arm_rviz_tcp_plugin/plan_pose.hpp"
 #include "so_arm_rviz_tcp_plugin/print_tools.hpp"
 
 namespace SOArm {
