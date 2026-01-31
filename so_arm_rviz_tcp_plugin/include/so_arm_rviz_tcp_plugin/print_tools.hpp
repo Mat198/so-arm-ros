@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <sstream>
+#include <unordered_map>
 
 namespace print {
 
@@ -68,6 +69,36 @@ std::string array2Str(const std::array<T,N> & array, const int precision = 3){
   }
   outStream << "}";
   return outStream.str();
+}
+
+template<typename T, typename U>
+std::string map2Str(
+    const std::unordered_map<T,U> &map, 
+    const std::string &separator="\n    ", 
+    const int precision = 3
+) {
+
+    std::stringstream outStream;
+    outStream << std::fixed << std::setprecision(precision);
+    for (auto const & [key, value] : map) {
+        outStream << separator << key << ": " << value;
+    }
+    return outStream.str();
+}
+
+template<typename T, typename U>
+std::string map2Str(
+    const std::unordered_map<T, std::vector<U>> &map, 
+    const std::string &separator="\n    ", 
+    const int precision = 3
+) {
+
+    std::stringstream outStream;
+    outStream << std::fixed << std::setprecision(precision);
+    for (auto const & [key, value] : map) {
+        outStream << separator << key << ": " << vector2Str(value);
+    }
+    return outStream.str();
 }
 
 inline std::string bool2Str(const bool value) {
