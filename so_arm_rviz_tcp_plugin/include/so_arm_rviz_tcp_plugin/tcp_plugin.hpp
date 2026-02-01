@@ -25,12 +25,17 @@
 #include <QTreeWidget>
 
 // Package includes
+#include "so_arm_rviz_tcp_plugin/pose_tree_widget.hpp"
+#include "so_arm_rviz_tcp_plugin/pose_delegate.hpp"
 #include "so_arm_rviz_tcp_plugin/print_tools.hpp"
 
 namespace SOArm {
 
 using TriggerSrv = std_srvs::srv::Trigger;
 using JointStateMsg = sensor_msgs::msg::JointState;
+
+using SavedPoses = std::unordered_map<std::string, std::vector<double>>;
+using Path = std::vector<std::string>;
 
 class RobotTcp : public rviz_common::Panel {
     Q_OBJECT 
@@ -55,15 +60,23 @@ private Q_SLOTS:
 
     void toggleRobot();
 
+    void onPoseMoved();
+
+    void onPoseChanged(QTreeWidgetItem *poseItem, int column);
+
 private:
 
     void setupGui();
 
     void planPath();
 
-    void jointStatesCallback(const JointStateMsg::SharedPtr msg);
-
     void createPoseItem(const std::string &poseDefaultName, const std::vector<double> &pose);
+
+    void updatePoseName(QTreeWidgetItem *poseItem);
+
+    void updatePoseValues(QTreeWidgetItem *poseString);
+
+    void jointStatesCallback(const JointStateMsg::SharedPtr msg);
 
     // ROS 2 components
     rclcpp::Node::SharedPtr m_node;
@@ -86,7 +99,7 @@ private:
     // Button to start/stop the robot 
     QPushButton *m_toggleRobotButton;
 
-    QTreeWidget* m_poseListWidget;
+    PoseTreeWidget* m_poseListWidget;
 
     QLabel *m_poseStateLabel;
 
@@ -94,7 +107,10 @@ private:
     JointStateMsg m_currentJointState;
 
     // Store the saved poses
-    PathPlan m_savedPoses;
+    SavedPoses m_savedPoses;
+
+    // Save the order of the poses
+    Path m_path;
 
     bool m_robotConnected = false;
 };

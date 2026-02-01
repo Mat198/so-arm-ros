@@ -30,11 +30,13 @@ void RobotTcp::setupGui() {
     m_poseStateLabel->setText("Robot not connected");
     planningFrameLayout->addWidget(m_poseStateLabel);
 
-    m_poseListWidget = new QTreeWidget();
-    m_poseListWidget->setHeaderHidden(true);
-    m_poseListWidget->setDragDropMode(QAbstractItemView::InternalMove);
-    m_poseListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_poseListWidget = new PoseTreeWidget();
+    m_poseListWidget->setItemDelegateForColumn(0, new PoseDelegate(this));
+    m_poseListWidget->setItemDelegateForColumn(1, new PoseDelegate(this));
     planningFrameLayout->addWidget(m_poseListWidget);
+
+    connect(m_poseListWidget, &PoseTreeWidget::itemDropped, this, &RobotTcp::onPoseMoved);
+    connect(m_poseListWidget, &QTreeWidget::itemChanged, this, &RobotTcp::onPoseChanged);
 
     mainLayout->addWidget(planningFrameGroup);
 
@@ -89,6 +91,7 @@ void RobotTcp::addPose() {
     std::string poseDefaultName = "Pose " + std::to_string(m_savedPoses.size());
     m_savedPoses[poseDefaultName] = m_currentJointState.position;
 
+    // Creates the UI pose element
     createPoseItem(poseDefaultName, m_currentJointState.position);
     
     RCLCPP_INFO_STREAM(m_node->get_logger(), 
@@ -99,24 +102,26 @@ void RobotTcp::addPose() {
 
 void RobotTcp::createPoseItem(const std::string &poseDefaultName, const std::vector<double> &pose) {
     
+    // Blocking signal during manual edit
+    m_poseListWidget->blockSignals(true);
+
     QTreeWidgetItem* poseItem = new QTreeWidgetItem(m_poseListWidget);
+    // Saving data to verify if new name is valid and then set the previous if not.
     poseItem->setText(0, poseDefaultName.c_str());
-    poseItem->setFlags(
-        poseItem->flags() | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
-    );
+    poseItem->setData(0, Qt::UserRole, poseDefaultName.c_str());
+    poseItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled);
 
     QTreeWidgetItem* detailItem = new QTreeWidgetItem(poseItem);
-    detailItem->setFlags(Qt::ItemIsEditable);
-    
-    QWidget* detailWidget = new QWidget();
-    QVBoxLayout* layout = new QVBoxLayout(detailWidget);
-    const std::string jointPose = "Joint positions:" + print::vector2Str(pose);
-    layout->addWidget(new QLabel(jointPose.c_str()));
-    layout->setContentsMargins(5, 5, 5, 5);
+    detailItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemNeverHasChildren);
+    detailItem->setText(0, "Joint positions:");
+    // Saving data to verify if new name is valid and then set the previous if not.
+    detailItem->setText(1, print::vector2Str(pose).c_str());
+    detailItem->setData(1, Qt::UserRole, print::vector2Str(pose).c_str());
+    // TODO: Add widget with cartesian position
 
-    m_poseListWidget->setItemWidget(detailItem, 0, detailWidget);
-    
     poseItem->setExpanded(true);
+    m_poseListWidget->resizeColumnToContents(0);
+    m_poseListWidget->blockSignals(false);
 }
 
 void RobotTcp::toggleTorque() {
@@ -126,6 +131,66 @@ void RobotTcp::toggleTorque() {
 
 void RobotTcp::toggleRobot() {
     RCLCPP_INFO_STREAM(m_node->get_logger(), "Clicked toggle robot button!");
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Saved poses: " << print::map2Str(m_savedPoses));
+}
+
+void RobotTcp::onPoseMoved() {
+
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "On pose moved called!");
+
+    m_path = Path();
+    m_path.reserve(m_poseListWidget->topLevelItemCount());
+
+    for (int i = 0; i < m_poseListWidget->topLevelItemCount(); ++i) {
+        QTreeWidgetItem* item = m_poseListWidget->topLevelItem(i);
+        m_path.push_back(item->text(0).toStdString());
+    }
+
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Update pose list: " << print::vector2Str(m_path));
+}
+
+void RobotTcp::onPoseChanged(QTreeWidgetItem *poseItem, int column) {
+
+    // Name of the pose update
+    if (column == 0 && poseItem->parent() == nullptr) {
+        updatePoseName(poseItem);
+    }
+    
+    // Update on the pose value
+    if (column == 1) {
+        // TODO: Update the pose value on the saved pose map
+        updatePoseValues(poseItem);
+    }
+}
+
+void RobotTcp::updatePoseName(QTreeWidgetItem *poseItem) {
+    
+    const std::string oldName = poseItem->data(0, Qt::UserRole).toString().toStdString();
+    const std::string newName = poseItem->text(0).toStdString();
+
+    if (newName.empty()) {
+        poseItem->setText(0, oldName.c_str());
+        std::string errorMsg = "Failed to rename pose " + oldName + " to " + newName + 
+            ". Empty name is forbideen.";
+        m_poseStateLabel->setText(errorMsg.c_str());
+        return;
+    }
+
+    if (m_savedPoses.find(newName) != m_savedPoses.end()) {
+        poseItem->setText(0, oldName.c_str());
+        std::string errorMsg = "Failed to rename pose " + oldName + " to " + newName + 
+            ". The pose " + newName + " already exists.";
+        m_poseStateLabel->setText(errorMsg.c_str());
+        return;
+    }
+    
+    std::vector<double> poseValue = m_savedPoses.at(oldName);
+    m_savedPoses.insert_or_assign(newName, poseValue);
+    m_savedPoses.erase(oldName);
+
+    RCLCPP_INFO_STREAM(
+        m_node->get_logger(), "Changed pose " << oldName << " to " << newName << "!");
+
 }
 
 void RobotTcp::jointStatesCallback(const JointStateMsg::SharedPtr msg) {

@@ -25,9 +25,11 @@ set(PKG_INCLUDES
 set(CMAKE_AUTOMOC ON)
 qt5_wrap_cpp(MOC_FILES
   include/${PROJECT_NAME}/tcp_plugin.hpp
+  include/${PROJECT_NAME}/pose_tree_widget.hpp
+  include/${PROJECT_NAME}/pose_delegate.hpp
 )
 
-add_library(so_arm_tcp_panel src/tcp_plugin.cpp ${MOC_FILES})
+add_library(so_arm_tcp_panel src/tcp_plugin.cpp src/pose_tree_widget.cpp ${MOC_FILES})
 target_include_directories(so_arm_tcp_panel PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
