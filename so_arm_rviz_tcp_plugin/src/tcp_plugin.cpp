@@ -55,6 +55,8 @@ void RobotTcp::setupGui() {
 
     // Connection the buttons to their functionality
     connect(m_toggleTorqueButton, &QPushButton::clicked, this, &RobotTcp::toggleTorque);
+    connect(this, &RobotTcp::updateButtonText, m_toggleTorqueButton, &QPushButton::setText);
+
     connect(m_toggleRobotButton, &QPushButton::clicked, this, &RobotTcp::toggleRobot);
     connect(m_addPoseButton, &QPushButton::clicked, this, &RobotTcp::addPose);
 
@@ -148,6 +150,7 @@ void RobotTcp::disableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture fu
 
     RCLCPP_INFO_STREAM(m_node->get_logger(), "Torque disabled!");
     m_torqueEnabled = false;
+    Q_EMIT updateButtonText("Enable Torque");
 }
 
 void RobotTcp::enableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture future) {
@@ -162,6 +165,7 @@ void RobotTcp::enableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture fut
 
     RCLCPP_INFO_STREAM(m_node->get_logger(), "Torque enabled!");
     m_torqueEnabled = true;
+    Q_EMIT updateButtonText("Disable Torque");
 }
 
 void RobotTcp::toggleTorque() {

@@ -65,6 +65,10 @@ private Q_SLOTS:
 
     void onPoseChanged(QTreeWidgetItem *poseItem, int column);
 
+Q_SIGNALS:
+
+    void updateButtonText(const QString& message);
+
 private:
 
     void setupGui();
