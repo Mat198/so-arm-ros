@@ -15,6 +15,7 @@
   <depend>pluginlib</depend>
   <depend>rviz_common</depend>
   <depend>so_arm_driver</depend>
+  <depend>so_arm_manager</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

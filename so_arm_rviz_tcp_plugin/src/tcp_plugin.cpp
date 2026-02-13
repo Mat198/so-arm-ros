@@ -62,12 +62,22 @@ void RobotTcp::setupGui() {
 }
 
 void RobotTcp::onInitialize()  {
+
+    using std::placeholders::_1;
+    using std::placeholders::_2;
     
     m_nodeAbstraction = getDisplayContext()->getRosNodeAbstraction().lock();
     m_node = m_nodeAbstraction->get_raw_node();
-    using std::placeholders::_1;
+
+    m_serviceCallbackGroup = m_node->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+
     m_jointStateSub = m_node->create_subscription<JointStateMsg>(
         "joint_states", 10, std::bind(&RobotTcp::jointStatesCallback, this, _1));
+    
+    m_enableTorqueClient = m_node->create_client<TriggerSrv>(
+        "so_arm/enable_torque", rmw_qos_profile_services_default, m_serviceCallbackGroup);
+    m_disableTorqueClient = m_node->create_client<TriggerSrv>(
+        "so_arm/disable_torque", rmw_qos_profile_services_default, m_serviceCallbackGroup);
 }
 
 void RobotTcp::save(rviz_common::Config config) const {
@@ -97,6 +107,8 @@ void RobotTcp::addPose() {
     RCLCPP_INFO_STREAM(m_node->get_logger(), 
         "Saved pose " << poseDefaultName << ": " << print::vector2Str(m_currentJointState.position)
     );
+
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Saved poses: " << print::map2Str(m_savedPoses));
 }
 
 
@@ -124,14 +136,60 @@ void RobotTcp::createPoseItem(const std::string &poseDefaultName, const std::vec
     m_poseListWidget->blockSignals(false);
 }
 
-void RobotTcp::toggleTorque() {
-    RCLCPP_INFO_STREAM(m_node->get_logger(), "Clicked toggle torque button!");
+void RobotTcp::disableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture future) {
+    
+    auto response = future.get();
+    m_serviceWaiting = false;
 
+    if (!response->success) {
+        RCLCPP_ERROR_STREAM(m_node->get_logger(), "Failed to disable torque.");
+        return;
+    }
+
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Torque disabled!");
+    m_torqueEnabled = false;
+}
+
+void RobotTcp::enableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture future) {
+
+    auto response = future.get();
+    m_serviceWaiting = false;
+
+    if (!response->success) {
+        RCLCPP_ERROR_STREAM(m_node->get_logger(), "Failed to enable torque.");
+        return;
+    }
+
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Torque enabled!");
+    m_torqueEnabled = true;
+}
+
+void RobotTcp::toggleTorque() {
+    
+    if (m_serviceWaiting) {
+        RCLCPP_ERROR_STREAM(m_node->get_logger(), "Still waiting for a enable/disable response!");
+        return;
+    }
+
+    const auto req = std::make_shared<TriggerSrv::Request>();
+    using std::placeholders::_1;
+
+    if (m_torqueEnabled) {
+        m_serviceWaiting = true;
+        auto result = m_disableTorqueClient->async_send_request(
+            req, std::bind(&RobotTcp::disableTorqueCallback, this, _1));
+        RCLCPP_INFO_STREAM(m_node->get_logger(), "Torque disable request sent!");
+        return;
+    }
+
+    auto result = m_enableTorqueClient->async_send_request(
+        req, std::bind(&RobotTcp::enableTorqueCallback, this, _1));
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Torque enable request sent!");
+    m_torqueEnabled = true;
 }
 
 void RobotTcp::toggleRobot() {
     RCLCPP_INFO_STREAM(m_node->get_logger(), "Clicked toggle robot button!");
-    RCLCPP_INFO_STREAM(m_node->get_logger(), "Saved poses: " << print::map2Str(m_savedPoses));
 }
 
 void RobotTcp::onPoseMoved() {
@@ -146,7 +204,7 @@ void RobotTcp::onPoseMoved() {
         m_path.push_back(item->text(0).toStdString());
     }
 
-    RCLCPP_INFO_STREAM(m_node->get_logger(), "Update pose list: " << print::vector2Str(m_path));
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Updated pose list: " << print::vector2Str(m_path));
 }
 
 void RobotTcp::onPoseChanged(QTreeWidgetItem *poseItem, int column) {
@@ -191,6 +249,13 @@ void RobotTcp::updatePoseName(QTreeWidgetItem *poseItem) {
     RCLCPP_INFO_STREAM(
         m_node->get_logger(), "Changed pose " << oldName << " to " << newName << "!");
 
+}
+
+void RobotTcp::updatePoseValues(QTreeWidgetItem *poseValues) {
+
+    const std::string oldPose = poseValues->data(1, Qt::UserRole).toString().toStdString();
+    const std::string newPose = poseValues->text(1).toStdString();
+    // TODO: Update pose value
 }
 
 void RobotTcp::jointStatesCallback(const JointStateMsg::SharedPtr msg) {

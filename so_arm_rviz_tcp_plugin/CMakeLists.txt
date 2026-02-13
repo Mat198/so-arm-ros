@@ -13,6 +13,7 @@ find_package(pluginlib REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(so_arm_driver REQUIRED)
+find_package(so_arm_manager REQUIRED)
 
 set(PKG_INCLUDES
   rclcpp
@@ -20,6 +21,7 @@ set(PKG_INCLUDES
   rviz_common
   std_srvs
   so_arm_driver
+  so_arm_manager
 )
 
 set(CMAKE_AUTOMOC ON)

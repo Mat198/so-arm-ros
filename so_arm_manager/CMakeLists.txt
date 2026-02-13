@@ -33,4 +33,9 @@ install(TARGETS so_arm_manager
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(DIRECTORY include/
+  DESTINATION include
+)
+
+ament_export_include_directories(include)
 ament_package()

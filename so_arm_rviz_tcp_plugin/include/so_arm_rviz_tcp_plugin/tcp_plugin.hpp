@@ -28,6 +28,7 @@
 #include "so_arm_rviz_tcp_plugin/pose_tree_widget.hpp"
 #include "so_arm_rviz_tcp_plugin/pose_delegate.hpp"
 #include "so_arm_rviz_tcp_plugin/print_tools.hpp"
+#include "so_arm_manager/sync_client_caller.hpp"
 
 namespace SOArm {
 
@@ -78,12 +79,19 @@ private:
 
     void jointStatesCallback(const JointStateMsg::SharedPtr msg);
 
+    void disableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture future);
+
+    void enableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture future);
+
     // ROS 2 components
     rclcpp::Node::SharedPtr m_node;
     rclcpp::Clock m_clock;
 
+    rclcpp::CallbackGroup::SharedPtr m_serviceCallbackGroup;
+
     // Call the servo torque service
-    rclcpp::Service<TriggerSrv>::SharedPtr m_toggleTorqueSrv;
+    rclcpp::Client<TriggerSrv>::SharedPtr m_enableTorqueClient;
+    rclcpp::Client<TriggerSrv>::SharedPtr m_disableTorqueClient;
 
     // Read joint state to save position
     rclcpp::Subscription<JointStateMsg>::SharedPtr m_jointStateSub;
@@ -113,6 +121,8 @@ private:
     Path m_path;
 
     bool m_robotConnected = false;
+    bool m_torqueEnabled = true;
+    bool m_serviceWaiting = false;
 };
 
 } // end namespace SOArm
