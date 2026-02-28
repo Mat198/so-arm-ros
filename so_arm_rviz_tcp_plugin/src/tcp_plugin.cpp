@@ -80,6 +80,9 @@ void RobotTcp::onInitialize()  {
         "so_arm/enable_torque", rmw_qos_profile_services_default, m_serviceCallbackGroup);
     m_disableTorqueClient = m_node->create_client<TriggerSrv>(
         "so_arm/disable_torque", rmw_qos_profile_services_default, m_serviceCallbackGroup);
+
+    m_moveSequenceActionClient = rclcpp_action::create_client<MoveGroupSequenceAction>(
+        m_node, "/sequence_move_group");
 }
 
 void RobotTcp::save(rviz_common::Config config) const {
@@ -101,7 +104,11 @@ void RobotTcp::addPose() {
     }
 
     std::string poseDefaultName = "Pose " + std::to_string(m_savedPoses.size());
-    m_savedPoses[poseDefaultName] = m_currentJointState.position;
+    // Saving the full joint state because we need the joints names and positions.
+    m_savedPoses[poseDefaultName] = m_currentJointState;
+    // Setting saved velocities to 0
+    const size_t jointCount =  m_currentJointState.position.size();
+    m_savedPoses[poseDefaultName].velocity = std::vector<double>(jointCount, 0);
     m_path.push_back(poseDefaultName);
 
     // Creates the UI pose element
@@ -110,8 +117,6 @@ void RobotTcp::addPose() {
     RCLCPP_INFO_STREAM(m_node->get_logger(), 
         "Saved pose " << poseDefaultName << ": " << print::vector2Str(m_currentJointState.position)
     );
-
-    RCLCPP_INFO_STREAM(m_node->get_logger(), "Saved poses: " << print::map2Str(m_savedPoses));
 }
 
 
@@ -193,8 +198,120 @@ void RobotTcp::toggleTorque() {
     m_torqueEnabled = true;
 }
 
+void RobotTcp::sequenceGoalResponseCallback(const SequenceClientGoalHandle::SharedPtr & future) {
+    const auto goal_handle = future.get();
+    // TODO: handle erros on the UI
+    if (!goal_handle) {
+        RCLCPP_ERROR_STREAM(m_node->get_logger(), "Sequence goal rejected by server");
+    } else {
+        RCLCPP_INFO_STREAM(
+            m_node->get_logger(), "Sequence goal accepted by server, waiting for result"
+        );
+    }
+}
+
+void RobotTcp::sequenceFeedbackCallback(
+    SequenceClientGoalHandle::SharedPtr /* handle */,
+    const std::shared_ptr<const MoveGroupSequenceAction::Feedback> feedback
+) {
+
+    RCLCPP_INFO_STREAM(
+        m_node->get_logger(), 
+        "Received feedback from motion sequence goal! Current state is " << feedback->state
+    );
+}
+
+void RobotTcp::sequenceResultCallback(const SequenceClientGoalHandle::WrappedResult & result) {
+    switch (result.code) {
+        case rclcpp_action::ResultCode::SUCCEEDED:
+            RCLCPP_INFO_STREAM(m_node->get_logger(), "Server successfully executed goal");
+            break;
+        case rclcpp_action::ResultCode::ABORTED:
+            RCLCPP_ERROR_STREAM(m_node->get_logger(), "Goal was aborted");
+            return;
+        case rclcpp_action::ResultCode::CANCELED:
+            RCLCPP_ERROR_STREAM(m_node->get_logger(), "Goal was canceled");
+            return;
+        default:
+            RCLCPP_ERROR_STREAM(m_node->get_logger(), "Unknown result code");
+            return;
+    }
+}
+
+MotionSequenceRequest RobotTcp::fillMotionSequenceRequest(
+    const Path &path, const SavedPoses &targets
+) {
+    
+    MotionSequenceRequest motionSequence;
+
+    Path fullPath = {"current_pose"}; 
+    fullPath.insert(fullPath.end(), path.begin(), path.end());
+    SavedPoses fullTargets = targets;
+    fullTargets["current_pose"] = m_currentJointState;
+
+    RCLCPP_INFO_STREAM(m_node->get_logger(), "Planning path with " << fullPath.size() << " poses.");
+
+    PoseMsg lastPose;
+    for (const auto &poseName : fullPath) {
+        Constraint gc;
+        const auto jointState = fullTargets.at(poseName);
+        for (size_t i = 0; i < jointState.name.size(); i++) {
+            if (jointState.name[i] == "gripper") continue;
+            JointConstraint jc;
+            jc.joint_name = jointState.name[i];
+            jc.tolerance_above = 1e-2;
+            jc.tolerance_below = 1e-2;
+            jc.weight = 1.0;
+            jc.position = jointState.position[i];
+            gc.joint_constraints.push_back(jc); 
+        }
+
+        RCLCPP_INFO_STREAM(m_node->get_logger(), 
+            "Adding pose " << poseName << ": " << print::vector2Str(jointState.position)
+        );
+
+        // Pontos do planejamento
+        MotionPlanRequest point;
+        point.group_name = "so_arm";
+        point.planner_id = "PTP";
+        point.pipeline_id = "pilz_industrial_motion_planner";
+        point.max_acceleration_scaling_factor = 1.0;
+        point.max_velocity_scaling_factor = 1.0;
+        point.goal_constraints.push_back(gc);
+
+        // Item do planejamento
+        MotionSequenceItem Item;
+        Item.req = point;
+        Item.blend_radius = 0;
+
+        motionSequence.items.push_back(Item);
+    }
+
+    return motionSequence;
+}
+
+void RobotTcp::sendRobotPath() {
+
+    const auto request = fillMotionSequenceRequest(m_path, m_savedPoses);
+    using std::placeholders::_1;
+    using std::placeholders::_2;
+    auto goal = MoveGroupSequenceAction::Goal();
+    goal.request = request;
+    auto send_goal_options =
+        rclcpp_action::Client<MoveGroupSequenceAction>::SendGoalOptions();
+    send_goal_options.goal_response_callback =
+        std::bind(&RobotTcp::sequenceGoalResponseCallback, this, _1);
+    send_goal_options.feedback_callback =
+        std::bind(&RobotTcp::sequenceFeedbackCallback, this, _1, _2);
+    send_goal_options.result_callback =
+        std::bind(&RobotTcp::sequenceResultCallback, this, _1);
+    RCLCPP_INFO(m_node->get_logger(), "Sending sequence goal... Robot started!");
+    m_moveSequenceActionClient->async_send_goal(goal, send_goal_options);
+}
+
 void RobotTcp::toggleRobot() {
     RCLCPP_INFO_STREAM(m_node->get_logger(), "Clicked toggle robot button!");
+    sendRobotPath();
 }
 
 void RobotTcp::onPoseMoved() {
@@ -247,7 +364,7 @@ void RobotTcp::updatePoseName(QTreeWidgetItem *poseItem) {
         return;
     }
     
-    std::vector<double> poseValue = m_savedPoses.at(oldName);
+    JointStateMsg poseValue = m_savedPoses.at(oldName);
     m_savedPoses.insert_or_assign(newName, poseValue);
     m_savedPoses.erase(oldName);
     std::replace(m_path.begin(), m_path.end(), oldName, newName);

@@ -12,6 +12,7 @@
   <depend>rclcpp</depend>
   <depend>rviz2</depend>
   <depend>std_srvs</depend>
+  <depend>moveit_msgs</depend>
   <depend>pluginlib</depend>
   <depend>rviz_common</depend>
   <depend>so_arm_driver</depend>

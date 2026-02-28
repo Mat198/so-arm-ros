@@ -1,6 +1,10 @@
 #ifndef TCP_RVIZ_PLUGIN_HPP
 #define TCP_RVIZ_PLUGIN_HPP
 
+// ROS 2 
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+
 // RVIZ Plugin base
 #include <rviz_common/panel.hpp>
 #include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
@@ -9,6 +13,14 @@
 // ROS 2 Interfaces
 #include <std_srvs/srv/trigger.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+
+#include <moveit_msgs/msg/motion_sequence_request.hpp>
+#include <moveit_msgs/msg/motion_sequence_item.hpp>
+#include <moveit_msgs/msg/motion_plan_request.hpp>
+#include <moveit_msgs/msg/constraints.hpp>
+#include <moveit_msgs/msg/joint_constraint.hpp>
+#include <moveit_msgs/action/move_group_sequence.hpp>
 
 // Qt Components
 #include <QApplication>
@@ -35,8 +47,21 @@ namespace SOArm {
 using TriggerSrv = std_srvs::srv::Trigger;
 using JointStateMsg = sensor_msgs::msg::JointState;
 
-using SavedPoses = std::unordered_map<std::string, std::vector<double>>;
+using SavedPoses = std::unordered_map<std::string, JointStateMsg>;
 using Path = std::vector<std::string>;
+
+using PoseMsg = geometry_msgs::msg::Pose;
+
+using MotionSequenceRequest = moveit_msgs::msg::MotionSequenceRequest;
+using MotionSequenceItem = moveit_msgs::msg::MotionSequenceItem;
+using MotionPlanRequest = moveit_msgs::msg::MotionPlanRequest;
+using MoveGroupSequenceAction = moveit_msgs::action::MoveGroupSequence;
+using SequenceClientGoalHandle = rclcpp_action::ClientGoalHandle<MoveGroupSequenceAction>;
+
+using Constraint = moveit_msgs::msg::Constraints;
+using JointConstraint = moveit_msgs::msg::JointConstraint;
+
+static const std::string PLANNING_GROUP = "so_arm";
 
 class RobotTcp : public rviz_common::Panel {
     Q_OBJECT 
@@ -73,7 +98,9 @@ private:
 
     void setupGui();
 
-    void planPath();
+    MotionSequenceRequest fillMotionSequenceRequest(const Path &path,const SavedPoses &targets);
+
+    void sendRobotPath();
 
     void createPoseItem(const std::string &poseDefaultName, const std::vector<double> &pose);
 
@@ -87,6 +114,15 @@ private:
 
     void enableTorqueCallback(rclcpp::Client<TriggerSrv>::SharedFuture future);
 
+    void sequenceGoalResponseCallback(const SequenceClientGoalHandle::SharedPtr & future);
+    
+    void sequenceFeedbackCallback(
+        SequenceClientGoalHandle::SharedPtr handle,
+        const std::shared_ptr<const MoveGroupSequenceAction::Feedback> feedback
+    );
+    
+    void sequenceResultCallback(const SequenceClientGoalHandle::WrappedResult & result);
+
     // ROS 2 components
     rclcpp::Node::SharedPtr m_node;
     rclcpp::Clock m_clock;
@@ -99,6 +135,9 @@ private:
 
     // Read joint state to save position
     rclcpp::Subscription<JointStateMsg>::SharedPtr m_jointStateSub;
+
+    // Action client to send a motion sequence
+    rclcpp_action::Client<MoveGroupSequenceAction>::SharedPtr m_moveSequenceActionClient;
 
     std::shared_ptr<rviz_common::ros_integration::RosNodeAbstractionIface> m_nodeAbstraction;
 

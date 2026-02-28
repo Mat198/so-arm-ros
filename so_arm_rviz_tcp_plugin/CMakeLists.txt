@@ -12,6 +12,7 @@ find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(moveit_msgs REQUIRED)
 find_package(so_arm_driver REQUIRED)
 find_package(so_arm_manager REQUIRED)
 
@@ -20,6 +21,7 @@ set(PKG_INCLUDES
   pluginlib
   rviz_common
   std_srvs
+  moveit_msgs
   so_arm_driver
   so_arm_manager
 )
