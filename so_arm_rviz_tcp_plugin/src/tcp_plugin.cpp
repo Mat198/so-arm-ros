@@ -102,6 +102,7 @@ void RobotTcp::addPose() {
 
     std::string poseDefaultName = "Pose " + std::to_string(m_savedPoses.size());
     m_savedPoses[poseDefaultName] = m_currentJointState.position;
+    m_path.push_back(poseDefaultName);
 
     // Creates the UI pose element
     createPoseItem(poseDefaultName, m_currentJointState.position);
@@ -249,6 +250,7 @@ void RobotTcp::updatePoseName(QTreeWidgetItem *poseItem) {
     std::vector<double> poseValue = m_savedPoses.at(oldName);
     m_savedPoses.insert_or_assign(newName, poseValue);
     m_savedPoses.erase(oldName);
+    std::replace(m_path.begin(), m_path.end(), oldName, newName);
 
     RCLCPP_INFO_STREAM(
         m_node->get_logger(), "Changed pose " << oldName << " to " << newName << "!");
