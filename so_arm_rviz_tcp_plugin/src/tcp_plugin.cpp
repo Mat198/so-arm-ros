@@ -119,7 +119,6 @@ void RobotTcp::addPose() {
     );
 }
 
-
 void RobotTcp::createPoseItem(const std::string &poseDefaultName, const std::vector<double> &pose) {
     
     // Blocking signal during manual edit
