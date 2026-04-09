@@ -149,13 +149,6 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster"],
     )
 
-    joint_sensor_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        name="joint_sensor_broadcaster_spawner",
-        arguments=["joint_sensor_broadcaster"],
-    )
-
     motor_torque_enable_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -206,6 +199,5 @@ def generate_launch_description():
         so_arm_controller_spawner,
         gripper_controller_spawner,
         joint_state_broadcaster_spawner,
-        joint_sensor_broadcaster_spawner,
         motor_torque_enable_controller_spawner,
     ])

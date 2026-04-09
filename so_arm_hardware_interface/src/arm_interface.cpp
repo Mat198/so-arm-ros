@@ -21,7 +21,7 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_init(
             RCLCPP_FATAL(
                 m_logger,
                 "Joint '%s' has %zu command interfaces found."
-                " 3 expected (position, velocity and acceleration).",
+                " 2 expected (position and velocity).",
                 joint.name.c_str(),
                 joint.command_interfaces.size()
             );
@@ -53,11 +53,11 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_init(
         }
 
         // Checa pelo número de interfaces de sensores de velocidade e posição das juntas
-        if (joint.state_interfaces.size() != 2) {
+        if (joint.state_interfaces.size() != 3) {
             RCLCPP_FATAL(
                 m_logger,
                 "Joint '%s' has %zu state interface."
-                " 3 expected (position, velocity and acceleration).",
+                " 3 expected (position, velocity and effort).",
                 joint.name.c_str(), 
                 joint.state_interfaces.size()
             );
@@ -78,6 +78,15 @@ hardware_interface::CallbackReturn SOArmHardwareInterface::on_init(
                 m_logger,
                 "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
                 joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY
+            );
+            return hardware_interface::CallbackReturn::ERROR;
+        }
+
+        if (joint.state_interfaces[2].name != hardware_interface::HW_IF_EFFORT) {
+            RCLCPP_FATAL(
+                m_logger,
+                "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
+                joint.state_interfaces[2].name.c_str(), hardware_interface::HW_IF_EFFORT
             );
             return hardware_interface::CallbackReturn::ERROR;
         }
@@ -110,6 +119,10 @@ SOArmHardwareInterface::export_state_interfaces() {
         );
         state_interfaces.emplace_back(
             hi::StateInterface(info_.joints[i].name, hi::HW_IF_VELOCITY, &m_state.vel[i])
+        );
+
+        state_interfaces.emplace_back(
+            hi::StateInterface(info_.joints[i].name, hi::HW_IF_EFFORT, &m_state.load[i])
         );
     }
 
